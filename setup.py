@@ -12,7 +12,7 @@ except IOError: readme = ''
 setup(
 
 	name = 'django-unhosted',
-	version = '12.07.6',
+	version = '12.07.7',
 	author = 'Mike Kazantsev',
 	author_email = 'mk.fraggod@gmail.com',
 	license = 'WTFPL',
@@ -42,6 +42,8 @@ setup(
 		'Topic :: Software Development :: Libraries :: Python Modules' ],
 
 	install_requires = ['django-crispy-forms', 'oauth2app'],
+	dependency_links = ['https://github.com/mk-fg/python-xrd/'],
+
 	packages = find_packages(),
 	package_data = {'': ['README.txt']},
 	exclude_package_data = {'': ['README.*']} )

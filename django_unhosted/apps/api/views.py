@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
 
 
-def storage(request, user):
+def storage(request, acct):
 	raise NotImplementedError()
