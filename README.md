@@ -17,8 +17,6 @@ settings.py:
 
 	INSTALLED_APPS = (
 		'django_unhosted',
-		'django_unhosted.apps.account',
-		'django_unhosted.apps.oauth2',
 		'oauth2app',
 		'crispy_forms',
 		'south',
