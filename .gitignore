@@ -6,3 +6,4 @@
 *.pyo
 
 /django_unhosted/static/bootstrap
+/django_unhosted/static/remoteStorage

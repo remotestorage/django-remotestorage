@@ -20,12 +20,18 @@ settings.py:
 		'django_unhosted.apps.webfinger.xrd_gen.Loader',
 	)
 
+	TEMPLATE_CONTEXT_PROCESSORS = (
+		...
+		'django.core.context_processors.request',
+	)
+
 	INSTALLED_APPS = (
+		...
 		'django_unhosted',
 		'oauth2app',
 		'crispy_forms',
 		'south',
-	...
+	)
 
 	CRISPY_TEMPLATE_PACK = 'bootstrap'
 	CRISPY_FAIL_SILENTLY = not DEBUG

@@ -7,6 +7,7 @@ from django.http import HttpResponse, Http404
 from django import template
 from django.conf import settings
 
+from django_unhosted.utils import cors_wrapper
 from .xrd_gen import xrd_cache
 
 
@@ -17,6 +18,7 @@ xrd_mime = lambda fmt:\
 	'application/xrd+{}; charset={}'.format(fmt, settings.DEFAULT_CHARSET)
 
 
+@cors_wrapper
 def host_meta(request, ext=None, fmt='xml'):
 	assert fmt in ['xml', 'json']
 
@@ -37,6 +39,7 @@ def host_meta(request, ext=None, fmt='xml'):
 			content_type=xrd_mime(fmt) )
 
 
+@cors_wrapper
 def webfinger(request, ext=None, fmt='xml'):
 	assert fmt in ['xml', 'json']
 

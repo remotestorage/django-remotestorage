@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+
+{% block title %}Sample remoteStorage client{% endblock %}
+
+<!-- <link href="css/screen.css" -->
+<!-- 	media="screen" rel="stylesheet" type="text/css" /> -->
+
+{% block head_ext %}
+	<script src="{{ STATIC_URL }}demo/jquery-1.7.1.min.js" type="text/javascript"></script>
+	<script src="{{ STATIC_URL }}demo/remoteStorage.js" type="text/javascript"></script>
+	<script src="{{ STATIC_URL }}demo/helper.js" type="text/javascript"></script>
+	<script src="{{ STATIC_URL }}demo/tutorial.js" type="text/javascript"></script>
+	<script src="{{ STATIC_URL }}demo/app.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="content_container">
+	<section id="intro">
+		<p>
+			This is a sample app using
+			<a href="https://github.com/unhosted/remoteStorage.js">remoteStorage.js</a>
+			for retrieving and storing data on a remoteStorage-compatible account. To
+			see how to use remoteStorage.js you can read the
+			<a href="docs/tutorial.html">annotated source</a> of this app.
+		</p>
+	</section>
+
+	<section id="connection">
+		<div id="states" class="hidden">
+			<span id="connectionState">disconnected</span> |
+			<span id="authorizedState">not authorized</span>
+		</div>
+
+		<p>
+			<label for="userAddress">Your user address:</label>
+			<input type="text" id="userAddress" placeholder="yourusername@5apps.com" />
+			<input type="submit" id="connect" value="Connect to remoteStorage" />
+			<input type="submit" id="disconnect" value="Disconnect" class="hidden" />
+			<input type="submit" id="authorize" value="Authorize access" />
+			<input type="submit" id="deauthorize" value="Deauthorize access" class="hidden" />
+			<img src="{{ STATIC_URL }}demo/spinner.gif" id="connectionSpinner" class="hidden" />
+		</p>
+	</section>
+
+	<section id="public_storage">
+		<h2 id="publicTitle">Read access for "public" category</h2>
+		<p>
+			<label for="publicKey">Key:</label>
+			<input type="text" id="publicKey" value="foo" />
+			<input type="submit" id="fetchPublicKey" value="Fetch" />
+			<img src="{{ STATIC_URL }}demo/spinner.gif" id="fetchPublicSpinner" class="hidden" />
+		</p>
+		<p>
+			<label for="publicValue">Value:</label>
+			<input type="text" id="publicValue" />
+		</p>
+		<p>
+			<input type="submit" id="publishPublic" value="Save" />
+			<img src="{{ STATIC_URL }}demo/spinner.gif" id="publishPublicSpinner" class="hidden" />
+		</p>
+	</section>
+
+	<section id="private_storage">
+		<h2>Read/write access for "tutorial" category</h2>
+		<p>
+			<label for="tutorialKey">Key:</label>
+			<input type="text" id="tutorialKey" value="bar" />
+			<input type="submit" id="fetchTutorialKey" value="Fetch" />
+			<img src="{{ STATIC_URL }}demo/spinner.gif" id="fetchTutorialSpinner" class="hidden" />
+		</p>
+		<p>
+			<label for="tutorialValue">Value:</label>
+			<input type="text" id="tutorialValue" />
+		</p>
+		<p>
+			<input type="submit" id="publishTutorial" value="Save" />
+			<img src="{{ STATIC_URL }}demo/spinner.gif" id="publishTutorialSpinner" class="hidden" />
+		</p>
+	</section>
+</div>
+
+{% endblock %}
+
+
+{% comment %}
+{% block content %}
+
+<h1>Sample remoteStorage client</h1>
+
+<div class="content_container">
+	<p>This is example javascript client to test whether
+		storage (and authorization) to a local remoteStorage works.</p>
+
+	{% if not request.user.is_authenticated %}
+
+	<p>Start by <a href="{% url account:signup %}">creating a user</a>.
+		Note that remoteStorage client should work even when you're
+			not logged in (what's the point of it otherwise?).</p>
+
+	{% else %}
+
+	<a href="">Click here</a> to access remoteStorage (as ...?).</p>
+
+	<p>The following data is available to
+		authorized clients at the specified endpoint URI:</p>
+	<dl>
+		{% url api:storage acct=request.user as url_api %}
+		<dt><a href="{{ url_api }}">{{ url_api }}</a></dt>
+		<dd>remoteStorage node</dd>
+	</dl>
+
+	{% if clients %}
+	<p>Authorize the clients at the various scopes:</p>
+	<table class="data">
+			<tr>
+				<th>Name</th>
+				<th>date_joined</th>
+				<th>last_login</th>
+				<th><em>No scope</em></th>
+			</tr>
+		{% for client in clients %}
+			<tr>
+				<td><a href="/client/{{ client.key }}">{{ client.name }}</a></td>
+				<td>
+					<form method="get" action="oauth2/authorize">
+						<input type="hidden" name="redirect_uri" value="http://127.0.0.1:8000/client/{{client.key}}/" />
+						<input type="hidden" name="response_type" value="code" />
+						<input type="hidden" name="client_id" value="{{client.key}}" />
+						<input type="hidden" name="scope" value="date_joined" />
+						<input type="submit" value="Request" />
+					</form>
+				</td>
+				<td>
+					<form method="get" action="oauth2/authorize">
+						<input type="hidden" name="redirect_uri" value="http://127.0.0.1:8000/client/{{client.key}}/" />
+						<input type="hidden" name="response_type" value="code" />
+						<input type="hidden" name="client_id" value="{{client.key}}" />
+						<input type="hidden" name="scope" value="last_login" />
+						<input type="submit" value="Request" />
+					</form>
+				</td>
+				<td>
+					<form method="get" action="oauth2/authorize">
+						<input type="hidden" name="redirect_uri" value="http://127.0.0.1:8000/client/{{client.key}}/" />
+						<input type="hidden" name="response_type" value="code" />
+						<input type="hidden" name="client_id" value="{{client.key}}" />
+						<input type="submit" value="Request" />
+					</form>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+	{% else %}
+	<p>No authorized clients so far.</p>
+	{% endif %}
+
+	{% if access_tokens %}
+	<p>You have issued the following access tokens.
+		Follow the links to see access your data using their credentials.</p>
+	<table class="data">
+			<tr>
+				<th>Client name</th>
+				<th>Scope</th>
+				<th>date_joined</th>
+				<th>last_login</th>
+				<th><em>No scope</em></th>
+			</tr>
+		{% for access_token in access_tokens %}
+			<tr>
+				<td><a href="/client/{{ access_token.client.key }}">{{ access_token.client.name }}</a></td>
+				<td>
+					{% if access_token.scope.all|length == 0 %}
+						<em>No scope</em>
+					{% endif %}
+					{% for access_range in access_token.scope.all %}
+						{{ access_range.key }}
+					{% endfor %}
+				</td>
+				<td><a href="/api/date_joined" class="authenticate"
+					id="_{{access_token.token}}">/api/date_joined</a></td>
+				<td><a href="/api/last_login" class="authenticate"
+					id="_{{access_token.token}}">/api/last_login</a></td>
+				<td><a href="/api/email" class="authenticate"
+					id="_{{access_token.token}}">/api/email</a></td>
+			</tr>
+		{% endfor %}
+	</table>
+	{% else %}
+	<p>You have no access_tokens. Authorize a client to create one.</p>
+	{% endif %}
+
+	{% endif %} {# Auth #}
+</div>
+
+{% endblock %}
+{% endcomment %}

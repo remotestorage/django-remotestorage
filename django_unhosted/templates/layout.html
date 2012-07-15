@@ -11,36 +11,49 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
+	<link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css">
 	<style type="text/css">
 		body {
 			padding-top: 60px;
 			padding-bottom: 40px;
 		}
+		{% block style_ext %}{% endblock %}
 	</style>
-	<link href="{{ STATIC_URL }}/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+	<link rel="stylesheet"
+		href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css">
 	<!--[if lt IE 9]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
 	<link rel="shortcut icon" href="{{ STATIC_URL }}bootstrap/ico/favicon.ico">
+
+		{% block head_ext %}{% endblock %}
 </head>
 
 <body>
 
+
+	{% url account:logout as url_logout %}
+	{% url account:login as url_login %}
+	{% url demo:storage_client as url_client %}
+	{% if url_login and url_logout %}
 	<div class="navbar navbar-fixed-top"><div class="navbar-inner">
 	<div class="container">
 		<ul class="nav">
 			{% if request.user.is_authenticated %}
-			<li><a href="{% url account:logout %}">Logout</a></li>
-			<li><a href="{% url account:clients %}">Your Clients</a></li>
+			<li><a href="{{ url_logout }}">Logout</a></li>
+			<li><a href="{% url account:clients %}">Authorized Clients</a></li>
 			{% else %}
-			<li><a href="{% url account:login %}">Login</a></li>
+			<li><a href="{{ url_login }}">Login</a></li>
 			<li><a href="{% url account:signup %}">Signup</a></li>
 			{% endif %}
-			<li><a href="/">TODO: Home</a></li>
+			{% if url_client %}
+			<li><a href="{{ url_client }}">Sample Client</a></li>
+			{% endif %}
 		</ul>
 	</div>
 	</div></div>
+	{% endif %}
 
 	<div class="container">
 		{% block content %}{% endblock %}

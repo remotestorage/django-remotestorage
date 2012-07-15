@@ -9,13 +9,29 @@ from oauth2app.models import AccessRange
 from crispy_forms.helpers import FormHelper, Submit, Reset
 
 
+class CreateClientForm(forms.Form):
+
+	name = forms.CharField(label="Name", max_length=30)
+
+	def __init__(self, *argz, **kwz):
+		self.helper = fh = FormHelper()
+		fh.add_input(Submit('', 'Create Client'))
+		fh.form_action, fh.form_method = reverse('account:clients'), 'POST'
+		super(CreateClientForm, self).__init__(*argz, **kwz)
+
+
+class ClientRemoveForm(forms.Form):
+
+	client_id = forms.IntegerField()
+
+
 class SignupForm(UserCreationForm):
 
 	email = forms.EmailField(label='Email')
 
 	def __init__(self, *argz, **kwz):
 		self.helper = fh = FormHelper()
-		fh.add_input(Submit('','Sign Up'))
+		fh.add_input(Submit('', 'Sign Up'))
 		fh.form_action, fh.form_method = reverse('account:signup'), 'POST'
 		super(SignupForm, self).__init__(*argz, **kwz)
 
@@ -27,7 +43,7 @@ class LoginForm(forms.Form):
 
 	def __init__(self, *argz, **kwz):
 		self.helper = fh = FormHelper()
-		fh.add_input(Submit('login','Log In'))
+		fh.add_input(Submit('login', 'Log In'))
 		fh.form_action, fh.form_method = reverse('account:login'), 'POST'
 		super(LoginForm, self).__init__(*argz, **kwz)
 
