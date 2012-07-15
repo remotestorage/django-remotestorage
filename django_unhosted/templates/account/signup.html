@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Signup{% endblock %}
+
+{% block content %}
+
+	<h1>Signup</h1>
+
+	<div class="form_container">
+	{% crispy form %}
+	</div>
+
+{% endblock %}

@@ -4,3 +4,5 @@
 /README.txt
 *.pyc
 *.pyo
+
+/django_unhosted/static/bootstrap

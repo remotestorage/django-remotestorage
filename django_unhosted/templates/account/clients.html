@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Your Clients{% endblock %}
+
+{% block content %}
+
+	<h1>Your Clients</h1>
+
+	<div class="content_container">
+	{% if clients %}
+	<table class="data">
+			<tr>
+				<th>Name</th>
+				<th colspan="2">Credentials</th>
+				<th></th>
+			</tr>
+		{% for client in clients %}
+			<tr>
+				<td rowspan="2">
+					<a href="/client/{{ client.key }}">TODO: {{ client.name }}</td>
+				<td class="right">Key:</td>
+				<td class="left">{{ client.key }}</td>
+				<td rowspan="2">
+					<form method="post" action="{% url clients %}">
+						{% csrf_token %}
+						<input type="hidden" name="client_id" value="{{ client.id }}" />
+						<input type="submit" value="Remove" />
+					</form>
+				</td>
+			</tr>
+			<tr>
+				<td class="right">Secret:</td>
+				<td class="left">{{ client.secret }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+	</div>
+
+	<div class="form_container">
+	{% crispy form form.helper %}
+	</div>
+
+{% endblock %}

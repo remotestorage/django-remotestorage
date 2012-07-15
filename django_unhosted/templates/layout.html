@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+	<title>Django.Unhosted : {% block title %}{% endblock %}</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
+	<style type="text/css">
+		body {
+			padding-top: 60px;
+			padding-bottom: 40px;
+		}
+	</style>
+	<link href="{{ STATIC_URL }}/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link rel="shortcut icon" href="{{ STATIC_URL }}bootstrap/ico/favicon.ico">
+</head>
+
+<body>
+
+	<div class="navbar navbar-fixed-top"><div class="navbar-inner">
+	<div class="container">
+		<ul class="nav">
+			{% if request.user.is_authenticated %}
+			<li><a href="{% url account:logout %}">Logout</a></li>
+			<li><a href="{% url account:clients %}">Your Clients</a></li>
+			{% else %}
+			<li><a href="{% url account:login %}">Login</a></li>
+			<li><a href="{% url account:signup %}">Signup</a></li>
+			{% endif %}
+			<li><a href="/">TODO: Home</a></li>
+		</ul>
+	</div>
+	</div></div>
+
+	<div class="container">
+		{% block content %}{% endblock %}
+	</div>
+
+</body>
+</html>
