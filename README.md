@@ -1,4 +1,4 @@
-django-unhosted: unhosted remoteStorage server implementation as a django app
+django-unhosted: [Unhosted](http://unhosted.org/) [remoteStorage](http://www.w3.org/community/unhosted/wiki/RemoteStorage) server implementation
 --------------------
 
 Under development.
