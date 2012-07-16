@@ -8,7 +8,12 @@
 
 <div class="content_container">
 	<p>You are now logged out.</p>
-	<p>Return to the <a href="/">TODO: home page</a>.</p>
+
+	{% url demo:storage_client as url_client %}
+	{% if url_client %}
+	<p>Return to the <a href="{{ url_client }}">Back to client</a>.</p>
+	{% endif %}
+
 </div>
 
 {% endblock %}
