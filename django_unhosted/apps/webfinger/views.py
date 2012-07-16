@@ -46,13 +46,14 @@ def webfinger(request, ext=None, fmt='xml'):
 	try: subject = request.GET['uri']
 	except KeyError: raise Http404
 	subject_parsed = urlparse(subject, 'acct')
-	if subject_parsed.scheme != 'acct': raise Http404
+	if subject_parsed.scheme != 'acct'\
+		or '@' not in subject_parsed.path: raise Http404
 
 	try: tpl = template.loader.get_template('webfinger/webfinger.{}'.format(fmt))
 	except template.TemplateDoesNotExist:
 		if fmt != 'json': raise
 		# Render proper JSON on-the-fly
-		acct = subject_parsed.path
+		acct = subject_parsed.path.split('@', 1)[-1]
 		return HttpResponse(
 			xrd_cache.gen_webfinger( fmt=fmt,
 				auth='{}?user={}'.format(reverse('oauth2:authorize'), acct),
