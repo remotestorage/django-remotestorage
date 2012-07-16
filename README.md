@@ -1,14 +1,28 @@
 django-unhosted: [Unhosted](http://unhosted.org/) [remoteStorage](http://www.w3.org/community/unhosted/wiki/RemoteStorage) server implementation
 --------------------
 
-Under development.
+Under development, not yet ready for general usage.
 
 
 Deploy
 --------------------
 
-	cd django_unhosted/static
-	unzip bootstrap.zip
+(for testing/development only at the moment, hence that compicated)
+
+	basepath=$(pwd)
+
+	git clone https://github.com/mk-fg/django-unhosted
+	git clone https://github.com/unhosted/remoteStorage.js
+	wget http://twitter.github.com/bootstrap/assets/bootstrap.zip
+	wget http://requirejs.org/docs/release/jquery-require/jquery1.7.2-requirejs2.0.4/jquery-require-sample.zip
+	unzip jquery-require-sample.zip
+
+	pushd django_unhosted/django_unhosted/static
+	unzip $basepath/bootstrap.zip
+	cd demo
+	ln -s $basepath/remoteStorage.js/src remoteStorage
+	ln -s $basepath/jquery-require-sample/webapp/scripts/require-jquery.js .
+	popd
 
 settings.py:
 
