@@ -23,20 +23,22 @@ class XRDTemplateCache(object):
 		self._templates = dict()
 
 	@staticmethod
-	def gen_host_meta( fmt='xml',
-			href='{{ url_base }}{% url webfinger:webfinger fmt=q_fmt %}?uri={uri}' ):
-		xrd = XRD()
-		xrd.links.append(Link( rel='lrdd',
-			type_='application/xrd+{}'.format(fmt), href=href ))
+	def gen_host_meta( fmt='xml', href=None,
+			template='{{ url_base }}{% url webfinger:webfinger fmt=q_fmt %}?uri={uri}' ):
+		xrd, link = XRD(), dict()
+		if href: link['href'] = href
+		else: link['template'] = template
+		xrd.links.append(Link(rel='lrdd', type_='application/xrd+{}'.format(fmt), **link))
 		return xrd
 
 	@staticmethod
-	def gen_webfinger( fmt='xml',
+	def gen_webfinger( fmt='xml', href=None,
 			auth='{% url oauth2:authorize %}?user={{ q_acct }}',
 			template='{% url api:storage q_acct %}/{category}/' ):
-		xrd = XRD()
-		xrd.links.append(Link( rel='remoteStorage',
-			template=template, api='simple', auth=auth ))
+		xrd, link = XRD(), dict()
+		if href: link['href'] = href
+		else: link['template'] = template
+		xrd.links.append(Link(rel='remoteStorage', api='simple', auth=auth, **link))
 		return xrd
 
 	@property

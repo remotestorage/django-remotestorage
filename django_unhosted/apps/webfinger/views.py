@@ -28,7 +28,7 @@ def host_meta(request, ext=None, fmt='xml'):
 		# Render proper JSON on-the-fly
 		return HttpResponse(
 			xrd_cache.gen_host_meta( fmt=fmt,
-				href='{}?uri={{uri}}'.format(request.build_absolute_uri(
+				template='{}?uri={{uri}}'.format(request.build_absolute_uri(
 					reverse('webfinger:webfinger', kwargs=dict(fmt=fmt)) ))
 			).to_json(),
 			content_type=xrd_mime(fmt) )
