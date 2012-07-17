@@ -114,3 +114,18 @@ place for them).
 		path anymore).
 
 	**TODO:** work with oauth2app upstream on this.
+
+* remoteStorage.js 0.6.9 ("stable" version at the moment) has a [known
+	issue](http://www.w3.org/community/unhosted/wiki/RemoteStorage-2011.10#OAuth)
+	of passing legacy "path1,path2" as a "scope", further complicating things for
+	oauth2app (which would think that it's a single capability, as per spec) if
+	several paths are passed.
+
+	Workaround used is to detect the old format by lack of ":rw" suffixes and
+	update "scope" in the address by issuing a redirect.
+
+	Note that since paths may contain commas, "path1,path2" can be ambiguous
+	(because of this issue) and can be treated either as "path1:rw" and "path2:rw"
+	or "path1,path2:rw".
+	Current implementation chooses the former interpretation if there's no
+	colon-delimeted suffix.

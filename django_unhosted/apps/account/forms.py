@@ -9,17 +9,6 @@ from oauth2app.models import AccessRange
 from crispy_forms.helpers import FormHelper, Submit, Reset
 
 
-class CreateClientForm(forms.Form):
-
-	name = forms.CharField(label="Name", max_length=30)
-
-	def __init__(self, *argz, **kwz):
-		self.helper = fh = FormHelper()
-		fh.add_input(Submit('', 'Create Client'))
-		fh.form_action, fh.form_method = reverse('account:clients'), 'POST'
-		super(CreateClientForm, self).__init__(*argz, **kwz)
-
-
 class ClientRemoveForm(forms.Form):
 
 	client_id = forms.IntegerField()

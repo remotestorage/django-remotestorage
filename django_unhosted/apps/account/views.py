@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 
 from oauth2app.models import Client, AccessRange
 
-from .forms import SignupForm, LoginForm, CreateClientForm, ClientRemoveForm
+from .forms import SignupForm, LoginForm, ClientRemoveForm
 
 
 def auth_redirect():
@@ -21,20 +21,13 @@ def auth_redirect():
 
 @login_required
 def clients(request):
+	raise NotImplementedError()
 	if request.method == 'POST':
-		form = CreateClientForm(request.POST)
-		remove_form = ClientRemoveForm(request.POST)
+		form = ClientRemoveForm(request.POST)
 		if form.is_valid():
-			Client.objects.create(
-				name=form.cleaned_data['name'],
-				user=request.user )
-		elif remove_form.is_valid():
 			Client.objects.filter(
-				id=remove_form.cleaned_data['client_id'],
+				id=form.cleaned_data['client_id'],
 				user=request.user ).delete()
-			form = CreateClientForm()
-	else:
-		form = CreateClientForm()
 	ctx = dict( form=form,
 		clients=Client.objects.filter(user=request.user) )
 	return render_to_response(
