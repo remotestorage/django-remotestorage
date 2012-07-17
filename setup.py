@@ -12,7 +12,7 @@ except IOError: readme = ''
 setup(
 
 	name = 'django-unhosted',
-	version = '12.07.11',
+	version = '12.07.14',
 	author = 'Mike Kazantsev',
 	author_email = 'mk.fraggod@gmail.com',
 	license = 'WTFPL',
