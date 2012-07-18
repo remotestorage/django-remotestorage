@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import itertools as it, operator as op, functools as ft
 from hashlib import sha512
+import re
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
@@ -12,9 +13,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.encoding import smart_unicode
 from django.utils.http import urlquote, urlquote_plus
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 
-from oauth2app.authorize import Authorizer,\
+from oauth2app.authorize import Authorizer, TOKEN,\
 	MissingRedirectURI, AuthorizationException, InvalidClient, InvalidScope,\
 	UnvalidatedRequest, UnauthenticatedUser
 from oauth2app.models import Client, AccessRange
@@ -30,10 +32,6 @@ def canonical_path_spec(path_spec):
 	except ValueError: path, caps = path_spec, 'rw'
 	path = '/'.join(it.ifilter(None, path.split('/')))
 	return '{}:{}'.format(path, caps)
-
-def path_spec_cap(path_spec):
-	'Transform path_spec to a "scope" cap for oauth2app.'
-	return 'path:sha512:{}'.format(sha512(path_spec).hexdigest())
 
 
 @login_required
@@ -53,44 +51,49 @@ def authorize(request):
 		scope_fixed = urlquote_plus(' '.join(
 			canonical_path_spec(path) for path in scope.split(',') ), safe='/:')
 		url = request.get_full_path()
+		# TODO: proper url parsing, not regex-replace hack
 		for scope in urlquote(scope, safe=''), scope,\
 				 urlquote(scope), urlquote(scope, safe=','), urlquote_plus(scope):
-			url_fixed = url.replace(u'&scope={}'.format(scope), '&scope={}'.format(scope_fixed))
+			url_fixed = re.sub(
+				r'(?<=\?|&)scope={}(?=&|$)'.format(re.escape(scope)),
+				'scope={}'.format(scope_fixed), url )
 			if url != url_fixed: break
 		else: raise ValueError('Failed to create redirect URL with fixed "scope" parameter')
 		return HttpResponseRedirect(url_fixed)
 
 	# Process OAuth2 request from query_string
-	authorizer = Authorizer()
-	missing_models = None
-	try: authorizer.validate(request)
+	authorizer = Authorizer(response_type=TOKEN)
+	validate_missing, validate_kwz = None, dict(check_scope=False)
+	try:
+		try: authorizer.validate(request, **validate_kwz)
+		except TypeError: # older version
+			validate_kwz.pop('check_scope')
+			authorizer.validate(request)
 	except MissingRedirectURI:
 		return HttpResponseRedirect(reverse('missing_redirect_uri'))
 	except (InvalidClient, InvalidScope) as err:
-		if isinstance(err, InvalidClient): missing_models = 'client'
-		else: missing_models = 'scope'
+		if isinstance(err, InvalidClient): validate_missing = 'client'
+		else: validate_missing = 'scope'
 	except AuthorizationException:
 		# The request is malformed or otherwise invalid.
 		# Automatically redirects to the provided redirect URL,
 		#  providing error parameters in GET, as per spec.
 		return authorizer.error_redirect()
 
-	paths = set(it.imap(canonical_path_spec, authorizer.scope))
+	paths = authorizer.scope
 	form = ft.partial( AuthorizeForm, paths=paths,
 		app=authorizer.client_id, action=request.get_full_path() )
 
 	if request.method == 'GET':
 		# Display form with a glorified "authorize? yes/no" question.
-		# Scope/client_id are set even in case of failed validation,
-		#  not sure if it's safe to rely on that in the future though.
-		if missing_models == 'client':
+		if validate_missing == 'client':
 			# With remoteStorage (0.6.9), client_id is the hostname of a webapp site,
 			#  which is requesting storage, so it's a new app, and that fact should be
 			#  made clear to the user.
 			messages.add_message(
 				request, messages.WARNING,
-				( u'It is the first time app from domain {}'
-					u' tries to access this storage, make sure it is the one you want to.' )\
+				( 'It is the first time app from domain {}'
+					' tries to access this storage, make sure it is the one you want to.' )\
 				.format(smart_unicode(authorizer.client_id)) )
 		form = form()
 		# Stored to validate that nothing has extended the submitted list client-side
@@ -104,24 +107,41 @@ def authorize(request):
 			return HttpResponseRedirect(request.get_full_path())
 		form = form(request.POST)
 		if form.is_valid():
-			if missing_models:
+			# Check list of authorized paths, building new scope
+			paths_auth, paths_form = set(), set(form.cleaned_data['path_access'])
+			while paths_form:
+				path_spec = paths_form.pop()
+				# Try to condense :r and :w to :rw
+				path, cap = path_spec.split(':')
+				for a, b in 'rw', 'wr':
+					if cap == a and '{}:{}'.format(path, b) in paths_form:
+						paths_auth.add('{}:rw'.format(path))
+						paths_form.remove('{}:{}'.format(path, b))
+						break
+				else: paths_auth.add(path_spec)
+			# Re-validate form, creating missing models
+			if validate_missing:
 				try:
 					with transaction.commit_on_success():
-						if missing_models == 'client':
-							Client.objects.create(name=authorizer.client_id, user=request.user)
-						if missing_models: # at least some "scopes" are missing
-							for path_spec in form.cleaned_data['path_access']:
-								scope, created = AccessRange.objects.get_or_create(
-									key=path_spec_cap(path_spec), defaults=dict(description=path_spec) )
-								if not created and scope.description != path_spec:
-									raise NotImplementedError( ( 'Detected hash colision'
-											' when inserting path_spec {!r} with existing path_spec {!r}' )\
-										.format(path_spec, scope.description) )
-						# Can still raise all kinds of errors, rolling back updates above
-						authorizer.validate(request)
-				except AuthorizationException: return authorizer.error_redirect()
+						if validate_missing == 'client':
+							Client.objects.create( user=request.user,
+								name=authorizer.client_id, key=authorizer.client_id )
+						if 'check_scope' not in validate_kwz:
+							# Create all these just to delete them after validation
+							for path_spec in paths:
+								AccessRange.objects.get_or_create(key=path_spec)
+						authorizer.validate(request, **validate_kwz)
+						for path_spec in paths_auth:
+							AccessRange.objects.get_or_create(key=path_spec)
+						if 'check_scope' not in validate_kwz:
+							for path_spec in paths.difference(paths_auth):
+								try: AccessRange.objects.get(key=path_spec).delete()
+								except (IntegrityError, ObjectDoesNotExist): pass
+				except AuthorizationException:
+					return authorizer.error_redirect()
+			authorizer.scope = paths_auth
 			return authorizer.grant_redirect()\
-				if form.cleaned_data['connect'] == 'Yes' else authorizer.error_redirect()
+				if form.cleaned_data['authorize'] == 'Yes' else authorizer.error_redirect()
 
 	if request.method in ['GET', 'POST']:
 		return render_to_response( 'oauth2/authorize.html',

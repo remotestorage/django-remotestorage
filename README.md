@@ -46,6 +46,9 @@ settings.py:
 		'south',
 	)
 
+	OAUTH2_CLIENT_KEY_LENGTH = 1024
+	OAUTH2_SCOPE_LENGTH = 2048
+
 	CRISPY_TEMPLATE_PACK = 'bootstrap'
 	CRISPY_FAIL_SILENTLY = not DEBUG
 
@@ -100,20 +103,24 @@ place for them).
 	oauth2app basically keeps a single table of these (treating them as a finite
 	up-front set of capabilities).
 
-	Two problems here:
+	Problems here:
 
-	* It stores "scope" as a 255-char key, while paths can potentially be longer
-		(thus I hash them here, so they reliably fit into the field) and more
-		numerous, resulting in possible hash collisions.
-		I work arround this by abusing "description" field to store (and check) path
-		there, but it's a hack.
+	* oauth2app stores "scope" as a 255-char key, while paths can potentially be
+		longer.
+		Upstream pull request: https://github.com/hiidef/oauth2app/pull/31
 
-	* There's some extra overhead involved for maintaining the - pointless in this
-		case - table, involving counting references to the entries there and
-		dropping them when it reaches zero (e.g. no one has "public/myphoto.jpg"
-		path anymore).
+	* Currently, oauth2app checks existance of AccessRange (scope) models as they
+		are specified in the request, even though access to some of them might not
+		be authorized by user, requiring temporary creation of this clutter.
+		Upstream pull request: https://github.com/hiidef/oauth2app/pull/32
 
-	**TODO:** work with oauth2app upstream on this.
+	* There's some extra code/db overhead involved in maintaining the (pointless
+		in this case) table.
+
+	All these are currently addressed in [my fork of
+	oauth2app](https://github.com/mk-fg/oauth2app/), but project should work with
+	the original oauth2app, it'd just involve some limitations (like 255-char
+	paths) and extra work (creation of AccessRange models to pass validation).
 
 * remoteStorage.js 0.6.9 ("stable" version at the moment) has a [known
 	issue](http://www.w3.org/community/unhosted/wiki/RemoteStorage-2011.10#OAuth)
@@ -129,3 +136,29 @@ place for them).
 	or "path1,path2:rw".
 	Current implementation chooses the former interpretation if there's no
 	colon-delimeted suffix.
+
+* remoteStorage.js 0.6.9 ("stable" version at the moment) uses hostname of the
+	app site as OAuth2 client_id, which, in oauth2app corresponds to the "key"
+	field, which is just 32-chars long by default, which might not be enough for
+	some hostnames, but can (and *should*!) be configured by
+	OAUTH2_CLIENT_KEY_LENGTH parameter in django project's settings.py.
+	Remember to do that *before* syncdb, or update the table column later.
+
+	Possible workaround might be to use hashes as the client_id's internally and
+	redirect remoteStorage requests with "client_id=hostname.com" to something
+	like "client_id=sha1:bbc21f0ccb5dfbf81f5043d78aa".
+
+	I can't see why client_id should be random or non-meaningful at the moment, if
+	there's a reason for that, please report an issue, some automatic migration to
+	hashes can probably be deployed at any time.
+
+
+TODO
+--------------------
+
+* Client (app, requesting access) deception - returning fake "authorized scopes"
+	to it, but storing them somewhere to deny the actual access or provide random garbage instead .
+
+	Idea is to prevent situation, common on twitter and android platforms, when
+	apps always ask for everything and user is presented with "all or nothing"
+	choice.
