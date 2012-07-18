@@ -107,7 +107,12 @@ place for them).
 
 	* oauth2app stores "scope" as a 255-char key, while paths can potentially be
 		longer.
-		Upstream pull request: https://github.com/hiidef/oauth2app/pull/31
+		Upstream [pull request](https://github.com/hiidef/oauth2app/pull/31) to
+		specify field length was merged (as of 19.07.2012), so use any newer version
+		with the large-enough OAUTH2_SCOPE_LENGTH parameter in settings.py (it
+		[doesn't really affect
+		performance](http://www.depesz.com/2010/03/02/charx-vs-varcharx-vs-varchar-vs-text/)
+		of modern databases, just making your life a bit harder).
 
 	* Currently, oauth2app checks existance of AccessRange (scope) models as they
 		are specified in the request, even though access to some of them might not
@@ -157,7 +162,8 @@ TODO
 --------------------
 
 * Client (app, requesting access) deception - returning fake "authorized scopes"
-	to it, but storing them somewhere to deny the actual access or provide random garbage instead .
+	to it, but storing them somewhere to deny the actual access or provide random
+	garbage instead.
 
 	Idea is to prevent situation, common on twitter and android platforms, when
 	apps always ask for everything and user is presented with "all or nothing"
