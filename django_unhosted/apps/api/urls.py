@@ -6,5 +6,5 @@ from django_unhosted.utils import autonamed_url
 
 urlpatterns = patterns(
 	'django_unhosted.apps.api.views',
-	autonamed_url(r'^storage/(?P<acct>[^/]+)/?$', 'storage'),
+	autonamed_url(r'^storage/(?P<acct>[^/]+)/(?P<path>.*)$', 'storage'),
 )
