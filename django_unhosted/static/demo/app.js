@@ -1,112 +1,112 @@
 define(
-  ['./tutorial', './helper'],
+	['./tutorial', './helper'],
 	function(storage, helper) {
 
-  $(function() {
+	$(function() {
 
-    $('#connect').on('click', function() {
-      var userAddress = $('#userAddress').val();
+		$('#connect').on('click', function() {
+			var userAddress = $('#userAddress').val();
 
-      helper.showSpinner('connectionSpinner');
+			helper.showSpinner('connectionSpinner');
 
-      storage.connect(userAddress, function(error, storageInfo) {
-        if(error) {
-          helper.setConnectionState(false);
-        } else {
-          localStorage.setItem('userStorageInfo', JSON.stringify(storageInfo));
-          localStorage.setItem('userAddress', userAddress);
-          helper.setConnectionState(true);
-        }
+			storage.connect(userAddress, function(error, storageInfo) {
+				if(error) {
+					helper.setConnectionState(false);
+				} else {
+					localStorage.setItem('userStorageInfo', JSON.stringify(storageInfo));
+					localStorage.setItem('userAddress', userAddress);
+					helper.setConnectionState(true);
+				}
 
-        helper.hideSpinner('connectionSpinner');
-      });
+				helper.hideSpinner('connectionSpinner');
+			});
 
-      return false;
-    });
+			return false;
+		});
 
-    $('#fetchPublicKey').on('click', function() {
-      var key = $('#publicKey').val();
+		$('#fetchPublicKey').on('click', function() {
+			var key = $('#publicKey').val();
 
-      helper.showSpinner('fetchPublicSpinner');
+			helper.showSpinner('fetchPublicSpinner');
 
-      storage.getData('public/tutorial/'+key, function(error, data) {
-        if(!error && data != "null") {
-          $('#publicValue').val(data);
-        }
+			storage.getData('public/tutorial/'+key, function(error, data) {
+				if(!error && data != "null") {
+					$('#publicValue').val(data);
+				}
 
-        helper.hideSpinner('fetchPublicSpinner');
-      });
+				helper.hideSpinner('fetchPublicSpinner');
+			});
 
-      return false;
-    });
+			return false;
+		});
 
-    $('#publishPublic').on('click', function() {
-      var key = $('#publicKey').val();
-      var value = $('#publicValue').val();
+		$('#publishPublic').on('click', function() {
+			var key = $('#publicKey').val();
+			var value = $('#publicValue').val();
 
-      helper.showSpinner('publishPublicSpinner');
+			helper.showSpinner('publishPublicSpinner');
 
-      storage.putData('public/tutorial/'+key, value, function(error) {
-        if (!error) {
-          $('#publicValue').val('');
-        }
+			storage.putData('public/tutorial/'+key, value, function(error) {
+				if (!error) {
+					$('#publicValue').val('');
+				}
 
-        helper.hideSpinner('publishPublicSpinner');
-      });
+				helper.hideSpinner('publishPublicSpinner');
+			});
 
-      return false;
-    });
+			return false;
+		});
 
-    $('#authorize').on('click', function() {
-      storage.authorize(['public/tutorial:rw', 'tutorial:rw']);
-      return false;
-    });
+		$('#authorize').on('click', function() {
+			storage.authorize(['public/tutorial:rw', 'tutorial:rw']);
+			return false;
+		});
 
-    $('#publishTutorial').on('click', function() {
-      var key = $('#tutorialKey').val();
-      var value = $('#tutorialValue').val();
+		$('#publishTutorial').on('click', function() {
+			var key = $('#tutorialKey').val();
+			var value = $('#tutorialValue').val();
 
-      helper.showSpinner('publishTutorialSpinner');
+			helper.showSpinner('publishTutorialSpinner');
 
-      storage.putData('tutorial/'+key, value, function(error) {
-        if (!error) {
-          $('#tutorialValue').val('');
-        }
+			storage.putData('tutorial/'+key, value, function(error) {
+				if (!error) {
+					$('#tutorialValue').val('');
+				}
 
-        helper.hideSpinner('publishTutorialSpinner');
-      });
+				helper.hideSpinner('publishTutorialSpinner');
+			});
 
-      return false;
-    });
+			return false;
+		});
 
-    $('#fetchTutorialKey').on('click', function() {
-      var key = $('#tutorialKey').val();
+		$('#fetchTutorialKey').on('click', function() {
+			var key = $('#tutorialKey').val();
 
-      helper.showSpinner('fetchTutorialSpinner');
+			helper.showSpinner('fetchTutorialSpinner');
 
-      storage.getData('tutorial/'+key, function(error, data) {
-        if(!error && data !== "null") {
-          $('#tutorialValue').val(data);
-        }
+			storage.getData('tutorial/'+key, function(error, data) {
+				if(!error && data !== "null") {
+					$('#tutorialValue').val(data);
+				}
 
-        helper.hideSpinner('fetchTutorialSpinner');
-      });
+				helper.hideSpinner('fetchTutorialSpinner');
+			});
 
-      return false;
-    });
+			return false;
+		});
 
-    $('#disconnect').on('click', function() {
-      helper.disconnect();
-      return false;
-    });
+		$('#disconnect').on('click', function() {
+			helper.disconnect();
+			return false;
+		});
 
-    $('#deauthorize').on('click', function() {
-      helper.deauthorize();
-      return false;
-    });
+		$('#deauthorize').on('click', function() {
+			helper.deauthorize();
+			return false;
+		});
 
-    helper.setConnectionState(helper.isConnected());
-    helper.setAuthorizedState(helper.isAuthorized());
-  });
+		helper.setConnectionState(helper.isConnected());
+		helper.setAuthorizedState(helper.isAuthorized());
+	});
 
 });

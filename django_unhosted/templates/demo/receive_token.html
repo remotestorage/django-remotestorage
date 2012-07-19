@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}Sample remoteStorage client{% endblock %}
+
+{% block head_ext %}
+	<script type="text/javascript"
+		data-main="{{ STATIC_URL }}demo/token"
+		src="{{ STATIC_URL }}demo/require-jquery.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<p>Closing dialog...</p>
+
+{% endblock %}

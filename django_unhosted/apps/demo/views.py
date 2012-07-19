@@ -16,3 +16,8 @@ def storage_client(request):
 		ctx['clients'] = clients
 	return render_to_response(
 		'demo/client.html', ctx, RequestContext(request) )
+
+
+def storage_token(request, ext):
+	return render_to_response(
+		'demo/receive_token.html', dict(), RequestContext(request) )
