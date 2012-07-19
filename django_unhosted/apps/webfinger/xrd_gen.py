@@ -4,10 +4,13 @@ from django.template.loader import BaseLoader
 from django.template.base import TemplateDoesNotExist
 from django.conf import settings
 
-from xrd import XRD, Link
+from xrd import Link, generate_xrd, generate_jrd
+
+try: import simplejson as json
+except ImportError: import json
 
 
-# Ideally, these XRDs should be signed, but python-xrd doesn't support that atm
+# Ideally, these XRDs should be signed, but no support for that atm
 #  http://docs.oasis-open.org/xri/xrd/v1.0/xrd-1.0.html#signature
 
 # https://tools.ietf.org/html/draft-jones-appsawg-webfinger-01
@@ -23,33 +26,39 @@ class XRDTemplateCache(object):
 		self._templates = dict()
 
 	@staticmethod
-	def gen_host_meta( fmt='xml', href=None,
-			template='{{ url_base }}{% url webfinger:webfinger fmt=q_fmt %}?uri={uri}' ):
-		xrd, link = XRD(), dict()
-		if href: link['href'] = href
-		else: link['template'] = template
-		xrd.links.append(Link(rel='lrdd', type_='application/xrd+{}'.format(fmt), **link))
-		return xrd
+	def serialize(fmt, **kwz):
+		if fmt == 'xml':
+			return generate_xrd(**kwz)\
+				.toprettyxml(indent='  ', encoding=settings.DEFAULT_CHARSET)
+		elif fmt == 'json':
+			return json.dumps(generate_jrd(**kwz))
+		else: raise ValueError('Unknown serialization format: {!r}'.format(fmt))
 
-	@staticmethod
-	def gen_webfinger( fmt='xml', href=None,
+	@classmethod
+	def gen_host_meta( cls, fmt='xml', href=None,
+			template='{{ url_base }}{% url webfinger:webfinger fmt=q_fmt %}?uri={uri}' ):
+		link = Link({'rel': 'lrdd', 'type': 'application/xrd+{}'.format(fmt)}, list(), list())
+		if href: link.attributes['href'] = href
+		else: link.attributes['template'] = template
+		return cls.serialize(fmt, links=[link])
+
+	@classmethod
+	def gen_webfinger( cls, fmt='xml', href=None,
 			auth='{% url oauth2:authorize %}?user={{ q_acct }}',
 			template='{% url api:storage q_acct %}/{category}/' ):
-		xrd, link = XRD(), dict()
-		if href: link['href'] = href
-		else: link['template'] = template
-		xrd.links.append(Link(rel='remoteStorage', api='simple', auth=auth, **link))
-		return xrd
+		link = Link({'rel': 'remoteStorage', 'api': 'simple', 'auth': auth}, list(), list())
+		if href: link.attributes['href'] = href
+		else: link.attributes['template'] = template
+		return cls.serialize(fmt, links=[link])
 
 	@property
 	def templates(self):
 		if not self._templates:
 			for tpl in 'host_meta', 'webfinger':
 				generate = getattr(self, 'gen_{}'.format(tpl))
-				self._templates['webfinger/{}.xml'.format(tpl)] = generate('xml')\
-					.to_xml().toprettyxml(indent='  ', encoding=settings.DEFAULT_CHARSET)
+				self._templates['webfinger/{}.xml'.format(tpl)] = generate('xml')
 				## JSON responses should not use templates to ensure proper serialization
-				# self._templates['webfinger/{}.json'.format(tpl)] = generate('json').to_json()
+				# self._templates['webfinger/{}.json'.format(tpl)] = generate('json')
 		return self._templates
 
 xrd_cache = XRDTemplateCache()

@@ -29,8 +29,7 @@ def host_meta(request, ext=None, fmt='xml'):
 		return HttpResponse(
 			xrd_cache.gen_host_meta( fmt=fmt,
 				template='{}?uri={{uri}}'.format(request.build_absolute_uri(
-					reverse('webfinger:webfinger', kwargs=dict(fmt=fmt)) ))
-			).to_json(),
+					reverse('webfinger:webfinger', kwargs=dict(fmt=fmt)) )) ),
 			content_type=xrd_mime(fmt) )
 	else:
 		return HttpResponse(
@@ -58,8 +57,7 @@ def webfinger(request, ext=None, fmt='xml'):
 			xrd_cache.gen_webfinger( fmt=fmt,
 				auth='{}?user={}'.format(reverse('oauth2:authorize'), acct),
 				template='{}/{{category}}/'.format(
-					reverse('api:storage', kwargs=dict(acct=acct)) )
-			).to_json(),
+					reverse('api:storage', kwargs=dict(acct=acct)) ) ),
 			content_type=xrd_mime(fmt) )
 	else:
 		return HttpResponse(

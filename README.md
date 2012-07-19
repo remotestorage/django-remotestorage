@@ -84,17 +84,9 @@ place for them).
 ##### Webfinger
 
 * No easy support for [signed
-	XRD](http://docs.oasis-open.org/xri/xrd/v1.0/xrd-1.0.html#signature), due to
-	lack of support in [python-xrd](https://github.com/jcarbaugh/python-xrd/),
-	signed *static* xml "templates" (or just files, served from httpd) can be used
-	as a workaround if TLS is not an option.
-
-* [Original (PyPI) version](https://github.com/jcarbaugh/python-xrd/) of
-	python-xrd can't be used, due to lack of support for custom attributes for
-	links (like "auth" and "api"), which are used in remoteStorage protocol atm,
-	only [my fork](https://github.com/mk-fg/python-xrd/) with experimental support
-	for these.
-	**TODO:** work with python-xrd upstream on this.
+	XRD](http://docs.oasis-open.org/xri/xrd/v1.0/xrd-1.0.html#signature) at the
+	moment. Signed *static* xml "templates" (or just files, served from httpd) can
+	be used as a workaround if TLS is not an option.
 
 ##### OAuth2
 
