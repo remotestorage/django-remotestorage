@@ -56,6 +56,18 @@ settings.py:
 Customization
 --------------------
 
+##### OAuth2
+
+It's highly recommended to raise database field lengths (using [oauth2app
+settings](http://hiidef.github.com/oauth2app/settings.html)) *before* running
+syncdb for the first time:
+
+* "OAUTH2_CLIENT_KEY_LENGTH = 1024" (default: 30)
+* "OAUTH2_SCOPE_LENGTH = 2048"  (default: 255)
+
+See "Known Issues / OAuth2" section for more detailed explaination on why it
+should be done.
+
 ##### Webfinger
 
 If [webfinger](https://tools.ietf.org/html/draft-jones-appsawg-webfinger-01) and
@@ -72,6 +84,43 @@ of json, if template provide can't be found).
 See example xml templates in
 [django_unhosted/templates/webfinger/{host_meta,webfinger}.xml.example]
 (https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/templates/webfinger/).
+
+##### WebDAV
+
+Provided remoteStorage is backed by (configurable) [Django Storage
+API](https://docs.djangoproject.com/en/dev/topics/files/).
+
+By default, [DEFAULT_FILE_STORAGE]
+(https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-DEFAULT_FILE_STORAGE)
+storage class is used.
+Different storage class can be specified by "UNHOSTED_DAV_STORAGE" parameter
+(passed to [get_storage_class]
+(https://docs.djangoproject.com/en/dev/ref/files/storage/#django.core.files.storage.get_storage_class)).
+
+Django Storage API parameters can usually be configured with MEDIA_URL and
+MEDIA_ROOT [settings](https://docs.djangoproject.com/en/dev/ref/settings/), see
+["Managing files"](https://docs.djangoproject.com/en/dev/topics/files/) django
+docs section for details.
+
+There are also some optimization parameters:
+
+* UNHOSTED_DAV_SENDFILE (bool, default: False)
+
+	Pass Storage.path to httpd frontend via "X-Sendfile" header instead of the
+	actual contents upon request, so that response can be served by frontend
+	daemon directly without backend app involved.
+
+* UNHOSTED_DAV_ACCEL (string, default: None)
+
+	Return empty HttpResponse with "X-Accel-Redirect" header set to specified
+	prefix (can be an empty string) plus the requested path, so the actual
+	response can be served by [apache
+	mod_accel](http://sysoev.ru/en/apache_modules.html).
+
+* UNHOSTED_DAV_REDIRECT (bool, default: True)
+
+	Return redirect to MEDIA_URL (produced by Storage.url method).
+	Used only if MEDIA_URL is set to non-empty string.
 
 
 Known issues

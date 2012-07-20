@@ -57,7 +57,7 @@ def webfinger(request, ext=None, fmt='xml'):
 			xrd_cache.gen_webfinger( fmt=fmt,
 				auth='{}?user={}'.format(reverse('oauth2:authorize'), acct),
 				template='{}/{{category}}/'.format(
-					reverse('api:storage', kwargs=dict(acct=acct)) ) ),
+					reverse('api:storage', kwargs=dict(acct=acct, path='')) ) ),
 			content_type=xrd_mime(fmt) )
 	else:
 		return HttpResponse(

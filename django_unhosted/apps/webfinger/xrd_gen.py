@@ -45,7 +45,7 @@ class XRDTemplateCache(object):
 	@classmethod
 	def gen_webfinger( cls, fmt='xml', href=None,
 			auth='{% url oauth2:authorize %}?user={{ q_acct }}',
-			template='{% url api:storage q_acct %}/{category}/' ):
+			template="{% url api:storage acct=q_acct path='' %}/{category}/" ):
 		link = Link({'rel': 'remoteStorage', 'api': 'simple', 'auth': auth}, list(), list())
 		if href: link.attributes['href'] = href
 		else: link.attributes['template'] = template
