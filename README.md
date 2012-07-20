@@ -117,10 +117,19 @@ There are also some optimization parameters:
 	response can be served by [apache
 	mod_accel](http://sysoev.ru/en/apache_modules.html).
 
-* UNHOSTED_DAV_REDIRECT (bool, default: True)
+* UNHOSTED_DAV_REDIRECT (bool, default: False)
 
 	Return redirect to MEDIA_URL (produced by Storage.url method).
 	Used only if MEDIA_URL is set to non-empty string.
+
+	Serve these urls only after checking oauth2app-generated bearer tokens in http
+	"Authorization" header either with django (or custom python code) or some
+	smart httpd.
+
+	**Do not** configure httpd to serve paths from MEDIA_URL without
+	authorization, because everyone will be able to bypass OAuth2 and gain access
+	to anything in remoteStorage just by guessing file paths or getting/reusing
+	them from js, which is really easy to exploit.
 
 
 Known issues

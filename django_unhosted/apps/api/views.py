@@ -72,7 +72,7 @@ def storage_api( request, path, fs_path,
 			response['X-Accel-Redirect'] = join(accel_redir, path)
 			# response['X-Accel-Charset'] = 'utf-8'
 			return response
-		if getattr(settings, 'UNHOSTED_DAV_REDIRECT', True)\
+		if getattr(settings, 'UNHOSTED_DAV_REDIRECT', False)\
 				and getattr(settings, 'MEDIA_URL', False):
 			try: return HttpResponseRedirect(fs.url(fs_path))
 			except NotImplementedError: pass
