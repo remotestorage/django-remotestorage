@@ -207,6 +207,30 @@ place for them).
 	there's a reason for that, please report an issue, some automatic migration to
 	hashes can probably be deployed at any time.
 
+##### WebDAV
+
+* Django Storage API doesn't mandate any kind of hierarchy (which WebDAV needs)
+	and mapping of paths to stored values, so there can be a situation when
+	"Storage.get_valid_name(path1) == Storage.get_valid_name(path2)" for "path1 !=
+	path2", resulting in all sorts of bad things from unauthorized access to
+	stored data corruption, so the current implementation *not safe* for general
+	usage at the moment.
+
+	One workaround is to ditch such simplistic API entirely and enforce some sort
+	of hierarchical storage, but it's generally non-portable to all kinds of
+	interesting storages (like key-value dbs, S3 or some exotic fs such as
+	[tahoe-lafs](https://tahoe-lafs.org/)) and doesn't have loads of backend
+	modules as django api does.
+
+	Another is to decouple hierarchy from the actual storage, which I see as more
+	desirable, and will implement eventually.
+
+* CSRF middleware ([django.middleware.csrf.CsrfViewMiddleware]
+	(https://docs.djangoproject.com/en/dev/ref/contrib/csrf/)) must be disabled,
+	because remoteStorage.js doesn't pass django csrf tokens along with PUT (and
+	similar) requests.
+	It's selectively enabled via decorator for app forms though.
+
 
 TODO
 --------------------
@@ -218,3 +242,6 @@ TODO
 	Idea is to prevent situation, common on twitter and android platforms, when
 	apps always ask for everything and user is presented with "all or nothing"
 	choice.
+
+* Implement "hierarchy layer" alongside Django Storage API and use the latter
+	only to store object contents without any sort of path/hierarchy info.

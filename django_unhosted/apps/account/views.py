@@ -7,6 +7,7 @@ from django.template import RequestContext
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_protect
 
 from oauth2app.models import Client, AccessRange
 
@@ -19,6 +20,7 @@ def auth_redirect():
 	return HttpResponseRedirect(next_hop)
 
 
+@csrf_protect
 @login_required
 def clients(request):
 	raise NotImplementedError()
@@ -34,6 +36,7 @@ def clients(request):
 		'account/clients.html', ctx, RequestContext(request) )
 
 
+@csrf_protect
 def login(request):
 	if request.method == 'POST':
 		form = LoginForm(request.POST)
@@ -55,6 +58,7 @@ def logout(request):
 		'account/logout.html', dict(), RequestContext(request) )
 
 
+@csrf_protect
 def signup(request):
 	if request.method == 'POST':
 		form = SignupForm(request.POST)

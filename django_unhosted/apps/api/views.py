@@ -1,8 +1,10 @@
 #-*- coding: utf-8 -*-
 
 from os.path import join
-import mimetypes, hashlib
+from datetime import datetime
+import mimetypes, hashlib, httplib, errno, calendar
 
+from django.core.files.storage import get_storage_class
 from django.core.files.base import ContentFile
 from django.http import HttpResponse,\
 	HttpResponseRedirect, HttpResponseNotAllowed,\
@@ -12,6 +14,10 @@ from django.conf import settings
 from django.views.decorators.http import condition
 
 from oauth2app.authenticate import Authenticator, AuthenticationException
+
+
+fs = get_storage_class(getattr(
+	settings, 'UNHOSTED_DAV_STORAGE', None ))()
 
 
 def methods(path, fs_path):
@@ -25,6 +31,11 @@ def methods(path, fs_path):
 		if path: opts.append('PUT')
 		return opts
 
+def http_date_ext(ts=None):
+	if isinstance(ts, datetime):
+		ts = calendar.timegm(ts.utctimetuple())
+	return http_date(ts)
+
 
 def storage(request, acct, path=''):
 	authenticator = Authenticator()
@@ -32,19 +43,21 @@ def storage(request, acct, path=''):
 	except AuthenticationException:
 		return authenticator.error_response(content='Authentication failure.')
 
-	from django.core.files.storage import get_storage_class
-	fs = get_storage_class(getattr(
-		settings, 'UNHOSTED_DAV_STORAGE', None ))
-
 	# TODO: check path aganst scope
+	# TODO: record original path into db, so there won't be
+	#  conflicts due to fs.get_valid_name(path1) == fs.get_valid_name(path2)
 	path = path.strip('/')
 	fs_path = fs.get_valid_name(join(acct, path))
 
 	try: fs_size = fs.size(fs_path)
 	except (NotImplementedError, OSError): fs_size = None
-	try: fs_mtime = http_date(fs.modified_time(fs_path))
-	except (NotImplementedError, OSError): fs_mtime = fs_etag = None
-	else: fs_etag = hashlib.sha1('{}\0{}'.format(mtime, fs_size)).hexdigest()
+	try: fs_mtime = fs.modified_time(fs_path)
+	except (NotImplementedError, OSError):
+		try: fs_mtime = fs.created_time(fs_path) # immutable storage?
+		except (NotImplementedError, OSError): fs_mtime = fs_etag = None
+	else:
+		fs_etag = hashlib.sha1('{}\0{}'.format(
+			http_date_ext(fs_mtime), fs_size )).hexdigest()
 
 	return storage_api( request, path, fs_path,
 		fs_size=fs_size, fs_mtime=fs_mtime, fs_etag=fs_etag )
@@ -83,22 +96,33 @@ def storage_api( request, path, fs_path,
 			content_type = '{}; charset={}'.format(*content_type)
 
 		try: response = HttpResponse(fs.open(fs_path), content_type=content_type)
-		except IOError:
-			return HttpResponseNotFound('Path {!r} does not exists'.format(path))
+		except IOError as err:
+			if err.errno == errno.ENOENT:
+				return HttpResponseNotFound('Path {!r} does not exists'.format(path))
+			raise
 
-		response['Date'] = http_date()
+		response['Date'] = http_date_ext()
 		if fs_size is not None: response['Content-Length'] = fs_size
-		if fs_mtime is not None: response['Last-Modified'] = fs_mtime
+		if fs_mtime is not None: response['Last-Modified'] = http_date_ext(fs_mtime)
 		if fs_etag is not None: response['ETag'] = fs_etag
 		return response
 
-	if request.method == 'PUT': raise NotImplementedError()
-	if request.method == 'DELETE': raise NotImplementedError()
+	elif request.method == 'PUT':
+		created = not fs.exists(fs_path) # racy!
+		fs.save(fs_path, ContentFile(request.body))
+		return HttpResponse(
+			status=httplib.CREATED if created else httplib.NO_CONTENT )
 
-	if request.method == 'OPTIONS':
+	elif request.method == 'DELETE':
+		if not fs.exists(fs_path): # racy!
+			return HttpResponseNotFound()
+		fs.delete(fs_path)
+		return HttpResponse(status=httplib.NO_CONTENT)
+
+	elif request.method == 'OPTIONS':
 		response = HttpResponse(mimetype='httpd/unix-directory')
 		for k,v in { 'DAV': '1,2', 'MS-Author-Via': 'DAV',
-				'Date': http_date(), 'Allow': methods(path, fs_path) }.viewitems():
+				'Date': http_date_ext(), 'Allow': methods(path, fs_path) }.viewitems():
 			response[k] = v
 		return response
 

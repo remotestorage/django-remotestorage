@@ -15,6 +15,7 @@ from django.utils.encoding import smart_unicode
 from django.utils.http import urlquote, urlquote_plus
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
+from django.views.decorators.csrf import csrf_protect
 
 from oauth2app.authorize import Authorizer, TOKEN,\
 	MissingRedirectURI, AuthorizationException, InvalidClient, InvalidScope,\
@@ -41,6 +42,7 @@ def missing_redirect_uri(request):
 		dict(), RequestContext(request) )
 
 
+@csrf_protect
 @login_required
 def authorize(request):
 	# Workaround for OAuth2 issue in 0.6.9 (and earlier) remoteStorage.js versions.
