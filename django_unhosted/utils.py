@@ -1,8 +1,11 @@
 #-*- coding: utf-8 -*-
 
 import itertools as it, operator as op, functools as ft
+from datetime import datetime
+import calendar
 
 from django.conf.urls import include, url
+from django.utils.http import http_date as django_http_date
 
 
 autonamed_url = lambda pat, mod, **kwz:\
@@ -25,3 +28,9 @@ def cors_wrapper(func):
 		response['Access-Control-Expose-Headers'] = '*'
 		return response
 	return wrapper
+
+
+def http_date(ts=None):
+	if isinstance(ts, datetime):
+		ts = calendar.timegm(ts.utctimetuple())
+	return django_http_date(ts)
