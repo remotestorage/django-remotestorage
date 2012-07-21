@@ -4,8 +4,26 @@ django-unhosted: [Unhosted](http://unhosted.org/) [remoteStorage](http://www.w3.
 Under development, not yet ready for general usage.
 
 
-Deploy
+Installation
 --------------------
+
+### Requirements
+
+* [Python 2.7 (not 3.X)](http://python.org/)
+
+* [Django](http://djangoproject.com)
+* [Django OAuth 2.0 Server App (oauth2app)](http://hiidef.github.com/oauth2app/)
+* [django-crispy-forms](http://django-crispy-forms.readthedocs.org/)
+* [Twitter Bootstrap](http://twitter.github.com/bootstrap/) (just css will do)
+
+* (optinal, recommended) [South](http://south.aeracode.org) - for automated
+	database schema updates
+* (optional) [remoteStorage.js](https://github.com/unhosted/remoteStorage.js) -
+	for demo app only
+* (optional) [requirejs jquery-require](http://requirejs.org/) - for demo app
+	only
+
+### Deployment
 
 (for testing/development only at the moment, hence that compicated)
 
@@ -40,6 +58,12 @@ settings.py:
 		'django.core.context_processors.request',
 	)
 
+	MIDDLEWARE_CLASSES = (
+		...
+		# 'django.middleware.csrf.CsrfViewMiddleware',
+		...
+	)
+
 	INSTALLED_APPS = (
 		...
 		'django_unhosted',
@@ -62,7 +86,7 @@ db (with south):
 Customization
 --------------------
 
-##### OAuth2
+### OAuth2
 
 It's highly recommended to raise database field lengths (using [oauth2app
 settings](http://hiidef.github.com/oauth2app/settings.html)) *before* running
@@ -74,7 +98,7 @@ syncdb for the first time:
 See "Known Issues / OAuth2" section for more detailed explaination on why it
 should be done.
 
-##### Webfinger
+### Webfinger
 
 If [webfinger](https://tools.ietf.org/html/draft-jones-appsawg-webfinger-01) and
 [host-meta](https://tools.ietf.org/html/draft-hammer-hostmeta-05) requests for
@@ -91,7 +115,7 @@ See example xml templates in
 [django_unhosted/templates/webfinger/{host_meta,webfinger}.xml.example]
 (https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/templates/webfinger/).
 
-##### WebDAV
+### WebDAV
 
 Provided remoteStorage is backed by (configurable) [Django Storage
 API](https://docs.djangoproject.com/en/dev/topics/files/).
@@ -145,14 +169,14 @@ These are implementation-related issues, not the issues with the protocols
 themselves (which doesn't imply there's none of the latter, just that it's not a
 place for them).
 
-##### Webfinger
+### Webfinger
 
 * No easy support for [signed
 	XRD](http://docs.oasis-open.org/xri/xrd/v1.0/xrd-1.0.html#signature) at the
 	moment. Signed *static* xml "templates" (or just files, served from httpd) can
 	be used as a workaround if TLS is not an option.
 
-##### OAuth2
+### OAuth2
 
 * Stored object path (think "public/myphoto.jpg") is used as OAuth2 "scope" by
 	remoteStorage.
@@ -213,7 +237,7 @@ place for them).
 	there's a reason for that, please report an issue, some automatic migration to
 	hashes can probably be deployed at any time.
 
-##### WebDAV
+### WebDAV
 
 * CSRF middleware ([django.middleware.csrf.CsrfViewMiddleware]
 	(https://docs.djangoproject.com/en/dev/ref/contrib/csrf/)) must be disabled,
