@@ -8,7 +8,8 @@ from django.core.files.storage import get_storage_class
 from django.core.files.base import ContentFile
 from django.http import HttpResponse,\
 	HttpResponseRedirect, HttpResponseNotAllowed,\
-	HttpResponseNotFound, HttpResponseNotModified
+	HttpResponseNotFound, HttpResponseNotModified,\
+	HttpResponseForbidden
 from django.utils.http import http_date
 from django.conf import settings
 from django.views.decorators.http import condition
@@ -31,6 +32,16 @@ def methods(path, fs_path):
 		if path: opts.append('PUT')
 		return opts
 
+def caps(method):
+	cap = list()
+	if method in [ 'OPTIONS', 'GET', 'HEAD', 'TRACE',
+		'COPY', 'MOVE', 'PROPFIND', 'PROPPATCH' ]: cap.append('r')
+	if method in [ 'PUT', 'POST', 'MKCOL', 'DELETE',
+		'LOCK', 'UNLOCK', 'MOVE', 'PROPPATCH' ]: cap.append('w')
+	cap = {'rw', ''.join(cap)}
+	return cap
+
+
 def http_date_ext(ts=None):
 	if isinstance(ts, datetime):
 		ts = calendar.timegm(ts.utctimetuple())
@@ -43,11 +54,16 @@ def storage(request, acct, path=''):
 	except AuthenticationException:
 		return authenticator.error_response(content='Authentication failure.')
 
-	# TODO: check path aganst scope
 	# TODO: record original path into db, so there won't be
 	#  conflicts due to fs.get_valid_name(path1) == fs.get_valid_name(path2)
-	path = path.strip('/')
+	path = '/'.join(it.ifilter(None, path.split('/')))
 	fs_path = fs.get_valid_name(join(acct, path))
+
+	# Check if access to path is authorized for this token
+	if not len(authenticator.scope.filter(
+			key__in=['{}:{}'.format(path) for cap in caps(request.method)] )):
+		return HttpResponseForbidden( 'Access (method: {})'
+			' to path {!r} is forbidden for this token.'.format(request.method, path) )
 
 	try: fs_size = fs.size(fs_path)
 	except (NotImplementedError, OSError): fs_size = None
