@@ -18,8 +18,8 @@ Installation
 
 * (optinal, recommended) [South](http://south.aeracode.org) - for automated
 	database schema updates
-* (optional) [remoteStorage.js](https://github.com/unhosted/remoteStorage.js) -
-	for demo app only
+* (optional) [remoteStorage.js](https://github.com/unhosted/remoteStorage.js)
+	("stable" 0.6.9-compatible API) - for demo app only
 * (optional) [requirejs jquery-require](http://requirejs.org/) - for demo app
 	only
 
@@ -42,6 +42,8 @@ Installation
 	popd
 
 settings.py:
+
+	DATABASES = ...
 
 	MEDIA_ROOT = ...
 	MEDIA_URL = ...
@@ -245,6 +247,23 @@ place for them).
 	similar) requests.
 	It's selectively enabled via decorator for app forms though.
 
+* Data is currently stored in the Django Storage, while path metadata is stored
+	through the Django Database API, which introduces two points of failure (and
+	the possibility of sync loss between the two), because one data is useless
+	without the other.
+
+	There don't seem to be any easy way around it - storing path data in Storage
+	keys won't work with any driver, pushing that to the content won't work when
+	this content will be served by anything but python (say, httpd) and storing
+	files in a db only works well for relatively small files.
+
+	So make sure to backup db as well as the actual storage, or write some
+	storage-specific kludge to store metadata there as well.
+	Example would be to add a hook to [post-save django signal]
+	(https://docs.djangoproject.com/en/dev/ref/models/instances/#what-happens-when-you-save),
+	which would get storage path from StorageObject.data.name and store some
+	"{name}.meta" file alongside with serialized model data.
+
 
 TODO
 --------------------
@@ -256,3 +275,6 @@ TODO
 	Idea is to prevent situation, common on twitter and android platforms, when
 	apps always ask for everything and user is presented with "all or nothing"
 	choice.
+
+* Client (app which has access to user's storage) management interface with the
+	ability to easily revoke access and maybe inspect stored/accessed resources.
