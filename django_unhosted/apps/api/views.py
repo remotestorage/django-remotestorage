@@ -14,7 +14,7 @@ from django.http import HttpResponse,\
 from django.views.decorators.http import condition
 
 from oauth2app.authenticate import Authenticator, AuthenticationException
-from django_unhosted.utils import http_date
+from django_unhosted.utils import http_date, cors_wrapper
 
 from .models import StoredObject
 
@@ -39,6 +39,7 @@ def caps(method):
 	return cap
 
 
+@cors_wrapper
 def storage(request, acct, path=''):
 	authenticator = Authenticator()
 	try: authenticator.validate(request)
