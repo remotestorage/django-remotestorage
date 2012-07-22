@@ -2,10 +2,9 @@
 
 import itertools as it, operator as op, functools as ft
 from os.path import join, dirname
-import mimetypes, httplib, errno
+import mimetypes, httplib, errno, logging
 
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.core.files.base import ContentFile
 from django.http import HttpResponse,\
 	HttpResponseRedirect, HttpResponseNotAllowed,\
@@ -16,7 +15,9 @@ from django.views.decorators.http import condition
 from oauth2app.authenticate import Authenticator, AuthenticationException
 from django_unhosted.utils import http_date, cors_wrapper
 
-from .models import StoredObject
+from .models import User, StoredObject
+
+log = logging.getLogger(__name__)
 
 
 def methods(path, exists=False, can_be_created=False):
@@ -44,27 +45,45 @@ def storage(request, acct, path=''):
 	authenticator = Authenticator()
 	try: authenticator.validate(request)
 	except AuthenticationException:
-		return authenticator.error_response(content='Authentication failure.')
+		auth_fail = authenticator.error_response(
+			content='OAuth2 authentication failure,'
+				' see "WWW-Authenticate" header for details.')
+	else: auth_fail = None
+	# It's also possible to check that acct==user here,
+	#  but I'm not sure about how and when it's actually useful
 
 	# Normalize the path
 	path = '/'.join(it.ifilter(None, path.split('/')))
-	path_dir = dirname(path)
 
 	# Check if access to path is authorized for this token
-	if not authenticator.scope.filter(
-			key__in=['{}:{}'.format(path_dir, cap) for cap in caps(request.method)] ).exists():
+	category = dirname(path)
+	path_caps = list(
+		'{}:{}'.format(category, cap)
+		for cap in caps(request.method) )
+	log.debug(( '(acct: {}, path: {}) required'
+		' cap (any): {}' ).format(acct, path, ', '.join(path_caps)))
+
+	if auth_fail:
+		# One special case - "public:r" access, otherwise 401
+		if 'public:r' not in path_caps: return auth_fail
+		user = User.objects.get(username=acct)
+	elif not authenticator.scope.filter(key__in=path_caps).exists():
+		# Authorized clients get 403 instead
+		log.debug(( '(acct: {}, path: {}) access denied,'
+			' caps available: {}' ).format( acct, path,
+				', '.join(authenticator.scope.values_list('key', flat=True)) ))
 		return HttpResponseForbidden( 'Access (method: {})'
 			' to path "{}" is forbidden for this token.'.format(request.method, path) )
+	else: user = authenticator.user
 
-	return storage_api( request,
-		StoredObject.objects.user_path(authenticator.user, path) )
+	return storage_api(request, StoredObject.objects.user_path(user, path))
 
 
 @condition(
 	etag_func=lambda request, obj: obj.etag,
 	last_modified_func=lambda request, obj: obj.mtime )
 def storage_api(request, obj):
-	if obj.data: fs = obj.data.storage
+	fs = obj.data.storage
 
 	if request.method in ['GET', 'HEAD']:
 		if not obj.data:
@@ -105,7 +124,7 @@ def storage_api(request, obj):
 
 	elif request.method == 'PUT':
 		created = not obj.data
-		fs.delete(obj.data.name)
+		if not created: fs.delete(obj.data.name)
 		obj.data.save(obj.path, ContentFile(request.body))
 		return HttpResponse(
 			status=httplib.CREATED if created else httplib.NO_CONTENT )
