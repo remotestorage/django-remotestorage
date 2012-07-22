@@ -31,14 +31,14 @@ def methods(path, exists=False, can_be_created=False):
 		return opts
 
 def caps(method):
-	cap, require_auth = list(), False
+	caps, auth_required = list(), False
 	if method in [ 'OPTIONS', 'GET', 'HEAD', 'TRACE',
-		'COPY', 'MOVE', 'PROPFIND', 'PROPPATCH' ]: cap.append('r')
-	if method == 'PROPFIND': require_auth = True
+		'COPY', 'MOVE', 'PROPFIND', 'PROPPATCH' ]: caps.append('r')
+	if method == 'PROPFIND': auth_required = True
 	if method in [ 'PUT', 'POST', 'MKCOL', 'DELETE',
-		'LOCK', 'UNLOCK', 'MOVE', 'PROPPATCH' ]: cap.append('w')
-	cap = {'rw', ''.join(cap)}
-	return cap, require_auth
+		'LOCK', 'UNLOCK', 'MOVE', 'PROPPATCH' ]: caps.append('w')
+	caps = {'rw', ''.join(caps)}.union(caps)
+	return caps, auth_required
 
 
 @cors_wrapper
@@ -58,15 +58,14 @@ def storage(request, acct, path=''):
 
 	# Check if access to path is authorized for this token
 	category = dirname(path)
-	path_caps = list(
-		'{}:{}'.format(category, cap)
-		for cap in caps(request.method) )
+	path_caps, auth_required = caps(request.method)
+	path_caps = list('{}:{}'.format(category, cap) for cap in path_caps)
 	log.debug(( '(acct: {}, path: {}) required'
 		' cap (any): {}' ).format(acct, path, ', '.join(path_caps)))
 
 	if auth_fail:
 		# One special case - "public:r" access, otherwise 401
-		if 'public:r' not in path_caps: return auth_fail
+		if auth_required or 'public:r' not in path_caps: return auth_fail
 		user = User.objects.get(username=acct)
 	elif not authenticator.scope.filter(key__in=path_caps).exists():
 		# Authorized clients get 403 instead
