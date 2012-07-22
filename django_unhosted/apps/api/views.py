@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 def methods(path, exists=False, can_be_created=False):
 	if path and not exists:
-		return 'OPTIONS' if parent_used\
+		return 'OPTIONS' if not can_be_created\
 			else ['OPTIONS', 'PUT', 'MKCOL', 'LOCK', 'UNLOCK']
 	else:
 		opts = [ 'OPTIONS', 'GET', 'HEAD', 'POST', 'DELETE', 'TRACE',
@@ -31,13 +31,14 @@ def methods(path, exists=False, can_be_created=False):
 		return opts
 
 def caps(method):
-	cap = list()
+	cap, require_auth = list(), False
 	if method in [ 'OPTIONS', 'GET', 'HEAD', 'TRACE',
 		'COPY', 'MOVE', 'PROPFIND', 'PROPPATCH' ]: cap.append('r')
+	if method == 'PROPFIND': require_auth = True
 	if method in [ 'PUT', 'POST', 'MKCOL', 'DELETE',
 		'LOCK', 'UNLOCK', 'MOVE', 'PROPPATCH' ]: cap.append('w')
 	cap = {'rw', ''.join(cap)}
-	return cap
+	return cap, require_auth
 
 
 @cors_wrapper
