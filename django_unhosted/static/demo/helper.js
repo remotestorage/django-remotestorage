@@ -1,5 +1,4 @@
-define(
-	function() {
+helper = function() {
 
 	var connected = false;
 	var authorized = false;
@@ -101,4 +100,4 @@ define(
 		hideSpinner: hideSpinner
 	};
 
-});
+}();

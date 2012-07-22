@@ -1,11 +1,14 @@
 {% extends "layout.html" %}
 
+{% block license %}<!--
+{% include "demo/LICENSE.unhosted" %}-->
+{% endblock %}
+
 {% block title %}Sample remoteStorage client{% endblock %}
 
 {% block head_ext %}
-	<script type="text/javascript"
-		data-main="{{ STATIC_URL }}demo/token"
-		src="{{ STATIC_URL }}demo/require-jquery.js"></script>
+	<script type="text/javascript" src="{{ url_res_remotestorage }}"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}demo/token.js"></script>
 {% endblock %}
 
 {% block content %}

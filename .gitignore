@@ -5,6 +5,6 @@
 *.pyc
 *.pyo
 
-/django_unhosted/static/bootstrap
-/django_unhosted/static/demo/remoteStorage
-/django_unhosted/static/demo/require-jquery.js
+/django_unhosted/static/bootstrap.css
+/django_unhosted/static/demo/remoteStorage.js
+/django_unhosted/static/demo/jquery.js

@@ -1,9 +1,7 @@
 // Accepting remoteStorage accounts in your web app
 // ------------------------------------------------
 
-define(
-	['./remoteStorage/remoteStorage'],
-	function(remoteStorage) {
+storage = function() {
 
 	// `getStorageInfo` takes a user address ("user@host") and a callback as its
 	// arguments. The callback will get an error code, and a `storageInfo`
@@ -125,4 +123,4 @@ define(
 		putData: putData,
 	};
 
-});
+}();

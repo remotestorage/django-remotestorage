@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block license %}<!--
+{% include "demo/LICENSE.unhosted" %}-->
+{% endblock %}
+
 {% block title %}Sample remoteStorage client{% endblock %}
 
 {% block style_ext %}
@@ -8,9 +12,11 @@
 
 
 {% block head_ext %}
-	<script type="text/javascript"
-		data-main="{{ STATIC_URL }}demo/app"
-		src="{{ STATIC_URL }}demo/require-jquery.js"></script>
+	<script type="text/javascript" src="{{ url_res_jquery }}"></script>
+	<script type="text/javascript" src="{{ url_res_remotestorage }}"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}demo/helper.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}demo/tutorial.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}demo/app.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -18,23 +24,21 @@
 <div class="content_container">
 	<section id="intro">
 		<p>
-			This is a sample app using
-			<a href="https://github.com/unhosted/remoteStorage.js">remoteStorage.js</a>
-			for retrieving and storing data on a remoteStorage-compatible account. To
-			see how to use remoteStorage.js you can read the
-			<a href="docs/tutorial.html">annotated source</a> of this app.
+			This is a
+			sample <a href="https://github.com/unhosted/remoteStorage.js">remoteStorage.js</a>
+			client for retrieving and storing data on a remoteStorage-compatible host.
 		</p>
 	</section>
 
 	<section id="connection">
-		<div id="states" class="hidden">
+		<div id="states">
 			<span id="connectionState">disconnected</span> |
 			<span id="authorizedState">not authorized</span>
 		</div>
 
 		<p>
 			<label for="userAddress">Your user address:</label>
-			<input type="text" id="userAddress" placeholder="yourusername@5apps.com" />
+			<input type="text" id="userAddress" placeholder="test@localhost" />
 			<input type="submit" id="connect" value="Connect to remoteStorage" />
 			<input type="submit" id="disconnect" value="Disconnect" class="hidden-btn" />
 			<input type="submit" id="authorize" value="Authorize access" />

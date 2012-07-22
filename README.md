@@ -14,32 +14,18 @@ Installation
 * [Django](http://djangoproject.com)
 * [Django OAuth 2.0 Server App (oauth2app)](http://hiidef.github.com/oauth2app/)
 * [django-crispy-forms](http://django-crispy-forms.readthedocs.org/)
-* [Twitter Bootstrap](http://twitter.github.com/bootstrap/) (just css will do)
-
 * (optinal, recommended) [South](http://south.aeracode.org) - for automated
 	database schema updates
-* (optional) [remoteStorage.js](https://github.com/unhosted/remoteStorage.js)
-	("stable" 0.6.9-compatible API) - for demo app only
-* (optional) [requirejs jquery-require](http://requirejs.org/) - for demo app
-	only
+
+Note that various interfaces of the app use some external resources, like
+[Twitter Bootstrap] (http://twitter.github.com/bootstrap/) CSS file (served from
+bootstrapcdn.com) and [remoteStorage.js]
+(https://github.com/unhosted/remoteStorage.js), which can be served from local
+URLs, if available in STATIC_ROOT.
+See "Customization / Interfaces" for details.
+
 
 ### Deployment
-
-(for testing/development only at the moment, hence that compicated)
-
-	git clone https://github.com/mk-fg/django-unhosted
-	git clone https://github.com/unhosted/remoteStorage.js
-	wget http://twitter.github.com/bootstrap/assets/bootstrap.zip
-	wget http://requirejs.org/docs/release/jquery-require/jquery1.7.2-requirejs2.0.4/jquery-require-sample.zip
-	unzip jquery-require-sample.zip
-
-	basepath=$(pwd)
-	pushd django_unhosted/django_unhosted/static
-	unzip $basepath/bootstrap.zip
-	cd demo
-	ln -s $basepath/remoteStorage.js/src remoteStorage
-	ln -s $basepath/jquery-require-sample/webapp/scripts/require-jquery.js .
-	popd
 
 settings.py:
 
@@ -162,6 +148,16 @@ There are also some optimization parameters:
 	authorization, because everyone will be able to bypass OAuth2 and gain access
 	to anything in remoteStorage just by guessing file paths or getting/reusing
 	them from js, which is really easy to exploit.
+
+### Interfaces
+
+Mostly usual drill - put your own templates to loaders, specified in settings.py.
+
+External resources that are served on these pages can be put to STATIC_ROOT to
+be served by local httpd instead.
+See "django_unhosted.utils.external_resources_context" context processor for
+details.
+
 
 
 Known issues

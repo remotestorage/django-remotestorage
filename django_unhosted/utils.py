@@ -2,8 +2,10 @@
 
 import itertools as it, operator as op, functools as ft
 from datetime import datetime
+from os.path import exists, join
 import calendar
 
+from django.conf import settings
 from django.conf.urls import include, url
 from django.utils.http import http_date as django_http_date
 
@@ -35,3 +37,18 @@ def http_date(ts=None):
 	if isinstance(ts, datetime):
 		ts = calendar.timegm(ts.utctimetuple())
 	return django_http_date(ts)
+
+
+def external_resources_context(request):
+	def try_local(path, url):
+		return join(settings.STATIC_URL, path)\
+			if exists(join(settings.STATIC_ROOT, path))\
+			else url
+	return dict(
+		url_res_bootsrap=try_local( 'demo/bootstrap.css',
+			'https://current.bootstrapcdn.com'
+				'/bootstrap-v204/css/bootstrap-combined.min.css' ),
+		url_res_remotestorage=try_local( 'demo/remoteStorage.js',
+			'http://tutorial.unhosted.5apps.com/js/remoteStorage-0.6.9.min.js' ),
+		url_res_jquery=try_local( 'demo/jquery.js',
+			'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' ) )
