@@ -24,14 +24,14 @@ def force_class(obj, cls):
 			' attribute-dict, bytes value or {} instance: {}'.format(cls, obj) )
 	return obj
 
-def node_xrd(obj, cls=None, doc=None):
+def node_xrd(obj, cls, doc=None):
 	if not isinstance(cls, bytes):
-		obj = force_class(obj)
+		obj = force_class(obj, cls)
 		cls = cls.__name__
 	else: obj = TextNode(obj, dict())
 
 	node = doc.createElement(cls)
-	for k,v in obj.attributes: node.setAttribute(k, v)
+	for k,v in obj.attributes.viewitems(): node.setAttribute(k, v)
 	if obj.value is not None:
 		node.appendChild(doc.createTextNode(bytes(obj.value)))
 	elif getattr(obj, xsi_nil, False): node.setAttribute('xsi:nil', 'true')
@@ -65,8 +65,8 @@ def generate_xrd(
 			raise ValueError( 'Only one of "href" or "template"'
 				' attributes may be specified for link: {}'.format(link) )
 		for k,v in link.attributes.viewitems(): node.setAttribute(k, v)
-		for v in link.titles or list(): link.appendChild(doc_node(v, Title))
-		for v in link.properties or list(): link.appendChild(doc_node(v, Property))
+		for v in link.titles or list(): node.appendChild(doc_node(v, Title))
+		for v in link.properties or list(): node.appendChild(doc_node(v, Property))
 		root.appendChild(node)
 
 	return doc
@@ -89,13 +89,10 @@ def generate_jrd(
 	append_props(doc, properties)
 	if aliases: doc['aliases'] = aliases
 
-	doc_links = doc['links'] = dict()
+	doc_links = doc['links'] = list()
 	for link in links:
 		doc_link = link.attributes.copy()
-		link_rel = doc_link.pop('rel')
-		if link_rel not in doc_links: doc_links[link_rel] = [doc_link]
-		else: doc_links[link_rel].append(doc_link)
-
+		doc_links.append(doc_link)
 		for title in link.titles:
 			title = force_class(title, Title)
 			if 'xml:lang' not in title.attributes:
@@ -104,7 +101,6 @@ def generate_jrd(
 			if title.value is not None:
 				if 'titles' not in doc_link: doc_link['titles'] = dict()
 				doc_link['titles'][title.attributes['xml:lang']] = title.value
-
-		append_props(doc_link, properties)
+		append_props(doc_link, link.properties)
 
 	return doc

@@ -4,7 +4,7 @@ from django.template.loader import BaseLoader
 from django.template.base import TemplateDoesNotExist
 from django.conf import settings
 
-from xrd import Link, generate_xrd, generate_jrd
+from xrd import Link, Property, generate_xrd, generate_jrd
 
 try: import simplejson as json
 except ImportError: import json
@@ -32,12 +32,12 @@ class XRDTemplateCache(object):
 				.toprettyxml(indent='  ', encoding=settings.DEFAULT_CHARSET)
 		elif fmt == 'json':
 			return json.dumps(generate_jrd(**kwz))
-		else: raise ValueError('Unknown serialization format: {!r}'.format(fmt))
+		raise ValueError('Unknown serialization format: {!r}'.format(fmt))
 
 	@classmethod
 	def gen_host_meta( cls, fmt='xml', href=None,
 			template='{{ url_base }}{% url webfinger:webfinger fmt=q_fmt %}?uri={uri}' ):
-		link = Link({'rel': 'lrdd', 'type': 'application/xrd+{}'.format(fmt)}, list(), list())
+		link = Link(dict(rel='lrdd', type='application/xrd+{}'.format(fmt)), list(), list())
 		if href: link.attributes['href'] = href
 		else: link.attributes['template'] = template
 		return cls.serialize(fmt, links=[link])
@@ -45,8 +45,13 @@ class XRDTemplateCache(object):
 	@classmethod
 	def gen_webfinger( cls, fmt='xml', href=None,
 			auth='{% url oauth2:authorize %}?user={{ q_acct }}',
+			auth_method='http://tools.ietf.org/html/draft-ietf-oauth-v2-26#section-4.2',
 			template="{% url api:storage acct=q_acct path='' %}/{category}/" ):
-		link = Link({'rel': 'remoteStorage', 'api': 'simple', 'auth': auth}, list(), list())
+		link = Link(
+			dict(auth=auth, api='simple', rel='remoteStorage'),
+			list(), [
+				Property(auth, dict(type='auth_endpoint')),
+				Property(auth_method, dict(type='auth_method')) ] )
 		if href: link.attributes['href'] = href
 		else: link.attributes['template'] = template
 		return cls.serialize(fmt, links=[link])
