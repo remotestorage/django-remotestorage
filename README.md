@@ -92,7 +92,9 @@ minimum - just a few [configuration files]
 (https://docs.djangoproject.com/en/dev/topics/settings/), specifying which
 database to use, and which apps should handle which URLs.
 
-TL;DR - simple installation/setup may look like this:
+##### TL;DR
+
+Simple installation/setup may look like this:
 
 	# Install the app itself (or not, it can be just checked-out into a project dir)
 	git clone https://github.com/mk-fg/django-unhosted.git
@@ -126,6 +128,8 @@ TL;DR - simple installation/setup may look like this:
 
 (since webfinger protocol **requires** some sort of XRD authentication, like
 https, it *won't work* properly on such a simple setup)
+
+##### Django project configuration
 
 Main idea is that two config files (in django project) need to be updated -
 settings.py and urls.py.
@@ -184,6 +188,8 @@ As for urls.py, just add the following line to the list of patterns:
 paths, see [django_unhosted.urls]
 (https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/urls.py))
 
+##### Database schema
+
 Then the usual drill is to create the necessary database schema for the app (if
 you get "Settings cannot be imported" error, make sure you run that from the
 same path as "settings.py" file):
@@ -198,6 +204,17 @@ they're available:
 
 Note that `django-admin.py migrate django_unhosted` can (and should) be run
 after django-unhosted app updates to apply any possible changes to db schema.
+
+#### Running
+
+Pretty much anything that supports [WSGI]
+(https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) protocol can be
+used with django - there's nothing app-specific here, just plain django, which
+is (usually) used as a backend with some httpd via wsgi.
+
+See django docs on [deployment process]
+(https://docs.djangoproject.com/en/dev/howto/deployment/) for generic
+instructions.
 
 
 Customization
