@@ -1,18 +1,20 @@
 #-*- coding: utf-8 -*-
 
+import itertools as it, operator as op, functools as ft
 from urlparse import urlparse
+from hashlib import sha1
+import os
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django import template
 from django.conf import settings
 from django.views.decorators.cache import cache_page
+from django.views.decorators.http import etag
 
+from django_unhosted import __version__
 from django_unhosted.utils import cors_wrapper
 from .xrd_gen import xrd_cache
-
-
-# TODO: caching (server- and client-side) for these (almost-static) pages
 
 
 xrd_mime = lambda fmt:\
@@ -20,6 +22,18 @@ xrd_mime = lambda fmt:\
 cache_time = getattr(settings, 'UNHOSTED_CACHE_TIME', 3600)
 
 
+etag_base = sha1(__version__).hexdigest()
+
+def etag_func(request, ext=None, fmt=None):
+	return sha1('\0'.join(it.imap(bytes, [
+		etag_base, ext, fmt,
+		request.build_absolute_uri('/'),
+		reverse('webfinger:webfinger'),
+		reverse('api:storage', kwargs=dict(acct='dummy', path='')),
+		request.GET.get('uri', '') ]))).hexdigest()
+
+
+@etag(etag_func)
 @cache_page(cache_time)
 @cors_wrapper
 def host_meta(request, ext=None, fmt='xml'):
@@ -35,6 +49,7 @@ def host_meta(request, ext=None, fmt='xml'):
 	return HttpResponse(page, content_type=xrd_mime(fmt))
 
 
+@etag(etag_func)
 @cache_page(cache_time)
 @cors_wrapper
 def webfinger(request, ext=None, fmt='xml'):
