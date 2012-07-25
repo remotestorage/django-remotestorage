@@ -35,11 +35,15 @@ class StoredObject(models.Model):
 
 	user = models.ForeignKey(User)
 	path = models.CharField(max_length=2048)
-	data = models.FileField(upload_to=fs_path, max_length=1024, storage=fs)
+	data = models.FileField( 'Storage API Object',
+		upload_to=fs_path, max_length=1024, storage=fs )
 
 	class Meta:
 		unique_together = ('user', 'path'),
 		app_label = 'django_unhosted'
+
+	def __unicode__(self):
+		return '{}:{}'.format(self.user, self.path)
 
 
 	_dmeta = _size = _mtime = _etag = None
