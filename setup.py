@@ -3,6 +3,8 @@
 from setuptools import setup, find_packages
 import os
 
+from django_unhosted import __version__
+
 pkg_root = os.path.dirname(__file__)
 
 # Error-handling here is to allow package to be built w/o README included
@@ -12,7 +14,7 @@ except IOError: readme = ''
 setup(
 
 	name = 'django-unhosted',
-	version = '12.07.35',
+	version = __version__,
 	author = 'Mike Kazantsev',
 	author_email = 'mk.fraggod@gmail.com',
 	license = 'WTFPL',
