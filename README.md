@@ -1,7 +1,68 @@
 django-unhosted: [Unhosted](http://unhosted.org/) [remoteStorage](http://www.w3.org/community/unhosted/wiki/RemoteStorage) server implementation
 --------------------
 
-Under development, not yet ready for general usage.
+This app is a server (storage) implementation for "stable" remoteStorage API
+version, specified here:
+
+	http://www.w3.org/community/unhosted/wiki/RemoteStorage-2011.10
+
+Some parts of it (especially webfinger, oauth2, since I've used newer specs that
+were available at the time) *might* be compatible with newer ("experimental")
+API:
+
+	https://www.w3.org/community/rww/wiki/read-write-web-00#simple
+	http://www.w3.org/community/unhosted/wiki/Pds
+
+But since remoteStorage.js 0.7.0 for experimental API is still under heavy
+development, I haven't tested whether it works with current implementation.
+
+
+remoteStorage
+--------------------
+
+Idea is that you can have storage account (with whatever policies and
+authentication) on host1 and some webapp (say, some visual editor, think MS
+Word) on host2.
+
+To edit document in a webapp, generally host2 would have to implement some sort
+of user registration, storage (like docs.google.com) for edited docs, etc.
+
+With remoteStorage, this storage don't have to be on host2, so you don't have to
+implement some complex policies and authenticated storage there to launch a
+full-featured webapp - it can open and save docs to any remote host which
+supports the protocol (which is basically GET/PUT from WebDAV with OAuth2 on
+top).
+
+host1 can be your VPS, client machine itself (especially easy with direct IPv6,
+or IPv4 provided via some service like [pagekite](https://pagekite.net/)), some
+reliable cloud provider or whatever.
+
+To fully understand how it all works, I recommend looking at OAuth2, WebDAV,
+CORS and Webfinger, which are basically all the technologies used to implement
+the protocol.
+
+This django app fully implements web-facing storage for host1, complete with
+user registration forms (optional, users can be added by other django apps or
+via django admin interface otherwise), client access management interfaces and a
+simple demo client.
+
+
+Security
+--------------------
+
+Since applicaton is a public-internet-facing interface to your (possibly
+important) data and I'm in no way security expert or specialist, I recommend to
+pentest or validate the code before storing any sensitive data in it.
+
+Data loss or corruption is much easier to prevent (and backups go a long way
+here, btw) than security exploits, so, again, please look at the code yourself
+and find issues there which I have a blind spot (not to mention lack of skills)
+for, thus won't be able to find on my own.
+
+Example of *obvious* (to an outsider analysis) security flaws in another
+storage-server implementation [can be found here]
+(http://crypto.junod.info/2012/05/24/owncloud-4-0-and-encryption/), learn the
+lession there.
 
 
 Installation
@@ -24,7 +85,6 @@ bootstrapcdn.com) and [remoteStorage.js]
 URLs, if available in STATIC_ROOT.
 See "Customization / Interfaces" for details.
 
-
 ### Deployment / configuration
 
 Django apps are deployed as a part of "django project", which is - at it's
@@ -35,11 +95,15 @@ database to use, and which apps should handle which URLs.
 TL;DR - simple installation/setup may look like this:
 
 	# Install the app itself (or not, it can be just checked-out into a project dir)
-	git clone ~/hatch/django-unhosted
+	git clone https://github.com/mk-fg/django-unhosted.git
 	cd django-unhosted
 	python setup.py install
 
+	# Install all the needed deps
+	pip install -r requirements.txt
+
 	# Create django project
+	cd
 	django-admin.py startproject myproject
 	cd myproject
 
