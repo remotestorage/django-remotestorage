@@ -25,50 +25,73 @@ URLs, if available in STATIC_ROOT.
 See "Customization / Interfaces" for details.
 
 
-### Deployment
+### Deployment / configuration
 
-settings.py:
+Django apps are deployed as a part of "django project", which is - at it's
+minimum - just a few [configuration files]
+(https://docs.djangoproject.com/en/dev/topics/settings/), specifying which
+database to use, and which apps should handle which URLs.
 
-	DATABASES = ...
+There are several ways to configure django to use the app:
 
-	MEDIA_ROOT = ...
-	MEDIA_URL = ...
-	STATIC_ROOT = ...
-	STATIC_URL = ...
+* If it's the only app in a django project, so you don't have some custom
+	settings.py already, you can use provided [settings.example.py file]
+	(https://github.com/mk-fg/django-unhosted/blob/master/settings.example.py)
+	directly.
 
-	TEMPLATE_LOADERS = (
-		...
-		'django_unhosted.apps.webfinger.xrd_gen.Loader',
-	)
+	Rename it to settings.py and put it into project root (or wherever
+	[DJANGO_SETTINGS_MODULE]
+	(https://docs.djangoproject.com/en/dev/topics/settings/#designating-the-settings)
+	is pointing), but make sure to look through it's settings and set at least
+	SECRET\_KEY, DATABASES, MEDIA\_\* and STATIC\_\*.
 
-	TEMPLATE_CONTEXT_PROCESSORS = (
-		...
-		'django.core.context_processors.request',
-	)
+	These are not the only ones that generally shouldn't be left to django, so I
+	highly recommend to review at least basic [django (app-agnostic) settings]
+	(https://docs.djangoproject.com/en/dev/topics/settings/) (and also set stuff
+	like TIME_ZONE, ADMINS, LOGGING, etc).
 
-	MIDDLEWARE_CLASSES = (
-		...
-		# 'django.middleware.csrf.CsrfViewMiddleware',
-		...
-	)
+* If there's already some custom settings.py file available (or it can be
+	created along with the project by django-admin.py), add this line somewhere at
+	the bottom of it: `from django_unhosted.settings_example import *`
 
-	INSTALLED_APPS = (
-		...
-		'django_unhosted',
-		'oauth2app',
-		'crispy_forms',
-		'south',
-	)
+	That will import all the options defined there (bare minimum that has to be
+	changed) over your settings.
 
-	OAUTH2_CLIENT_KEY_LENGTH = 1024
-	OAUTH2_SCOPE_LENGTH = 2048
+	Note that list of overidden options include INSTALLED_APPS, MIDDLEWARE_CLASSES
+	and such, which are not only often customized, but are usually specific to the
+	django version installed, so you can insert that import line at the
+	*beginning* of the settings.py, so everything defined after it will override
+	the options in the example.
 
-	CRISPY_TEMPLATE_PACK = 'bootstrap'
-	CRISPY_FAIL_SILENTLY = not DEBUG
+	And you can always just copy-paste whatever necessary by hand, which is
+	basically 3-10 lines.
 
-db (with south):
+* If you have great [django-configurations]
+	(http://django-configurations.readthedocs.org/) module installed, you can use
+	django_unhosted.settings_example.SettingsBase or SettingsFull classes to
+	dynamically extend/filter stuff like MIDDLEWARE_CLASSES and
+	TEMPLATE_CONTEXT_PROCESSORS.
 
-	./manage.py migrate django_unhosted
+	SettingsFull class only differs from SettingsBase in that it also extends
+	INSTALLED_APPS with all the required (incl. django_unhosted itself) and
+	optional apps.
+
+	This should be the most DRY, flexible and correct way to merge settings.
+
+Then the usual drill is to create the necessary database schema for the app (if
+you get "Settings cannot be imported" error, make sure you run that from the
+same path as "settings.py" file):
+
+	django-admin.py syncdb
+
+If [South app](http://south.aeracode.org) is installed (and specified in the
+INSTALLED_APPS), you should also use it's migrations to create tables for which
+they're available:
+
+	django-admin.py migrate django_unhosted
+
+Note that `django-admin.py migrate django_unhosted` can (and should) be run
+after django-unhosted app updates to apply any possible changes to db schema.
 
 
 Customization
