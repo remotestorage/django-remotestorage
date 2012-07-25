@@ -45,10 +45,10 @@ def external_resources_context(request):
 			if exists(join(settings.STATIC_ROOT, path))\
 			else url
 	return dict(
-		url_res_bootsrap=try_local( 'demo/bootstrap.css',
+		url_res_bootsrap=try_local( 'django_unhosted_client/bootstrap.css',
 			'https://current.bootstrapcdn.com'
 				'/bootstrap-v204/css/bootstrap-combined.min.css' ),
-		url_res_remotestorage=try_local( 'demo/remoteStorage.js',
+		url_res_remotestorage=try_local( 'django_unhosted_client/remoteStorage.js',
 			'http://tutorial.unhosted.5apps.com/js/remoteStorage-0.6.9.min.js' ),
-		url_res_jquery=try_local( 'demo/jquery.js',
+		url_res_jquery=try_local( 'django_unhosted_client/jquery.js',
 			'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' ) )

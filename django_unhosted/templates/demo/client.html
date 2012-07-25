@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block license %}<!--
-{% include "demo/LICENSE.unhosted" %}-->
+{% include "django_unhosted_client/LICENSE.unhosted" %}-->
 {% endblock %}
 
 {% block title %}Sample remoteStorage client{% endblock %}
@@ -14,9 +14,9 @@
 {% block head_ext %}
 	<script type="text/javascript" src="{{ url_res_jquery }}"></script>
 	<script type="text/javascript" src="{{ url_res_remotestorage }}"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}demo/helper.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}demo/tutorial.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}demo/app.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}django_unhosted_client/helper.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}django_unhosted_client/tutorial.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}django_unhosted_client/app.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -43,7 +43,7 @@
 			<input type="submit" id="disconnect" value="Disconnect" class="hidden-btn" />
 			<input type="submit" id="authorize" value="Authorize access" />
 			<input type="submit" id="deauthorize" value="Deauthorize access" class="hidden-btn" />
-			<img src="{{ STATIC_URL }}demo/spinner.gif" id="connectionSpinner" class="hidden-btn" />
+			<img src="{{ STATIC_URL }}django_unhosted_client/spinner.gif" id="connectionSpinner" class="hidden-btn" />
 		</p>
 	</section>
 
@@ -53,7 +53,7 @@
 			<label for="publicKey">Key:</label>
 			<input type="text" id="publicKey" value="foo" />
 			<input type="submit" id="fetchPublicKey" value="Fetch" />
-			<img src="{{ STATIC_URL }}demo/spinner.gif" id="fetchPublicSpinner" class="hidden-btn" />
+			<img src="{{ STATIC_URL }}django_unhosted_client/spinner.gif" id="fetchPublicSpinner" class="hidden-btn" />
 		</p>
 		<p>
 			<label for="publicValue">Value:</label>
@@ -61,7 +61,7 @@
 		</p>
 		<p>
 			<input type="submit" id="publishPublic" value="Save" />
-			<img src="{{ STATIC_URL }}demo/spinner.gif" id="publishPublicSpinner" class="hidden-btn" />
+			<img src="{{ STATIC_URL }}django_unhosted_client/spinner.gif" id="publishPublicSpinner" class="hidden-btn" />
 		</p>
 	</section>
 
@@ -71,7 +71,7 @@
 			<label for="tutorialKey">Key:</label>
 			<input type="text" id="tutorialKey" value="bar" />
 			<input type="submit" id="fetchTutorialKey" value="Fetch" />
-			<img src="{{ STATIC_URL }}demo/spinner.gif" id="fetchTutorialSpinner" class="hidden-btn" />
+			<img src="{{ STATIC_URL }}django_unhosted_client/spinner.gif" id="fetchTutorialSpinner" class="hidden-btn" />
 		</p>
 		<p>
 			<label for="tutorialValue">Value:</label>
@@ -79,7 +79,7 @@
 		</p>
 		<p>
 			<input type="submit" id="publishTutorial" value="Save" />
-			<img src="{{ STATIC_URL }}demo/spinner.gif" id="publishTutorialSpinner" class="hidden-btn" />
+			<img src="{{ STATIC_URL }}django_unhosted_client/spinner.gif" id="publishTutorialSpinner" class="hidden-btn" />
 		</p>
 	</section>
 </div>
