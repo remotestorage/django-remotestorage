@@ -45,6 +45,8 @@ setup(
 
 	install_requires = ['django-crispy-forms', 'oauth2app'],
 
+	zip_safe = False,
 	packages = find_packages(),
-	package_data = {'': ['README.txt']},
+	include_package_data = True,
+	# package_data = ... <-- ignored for sdist in some setuptools/distribute versions
 	exclude_package_data = {'': ['README.*']} )
