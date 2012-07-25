@@ -103,6 +103,10 @@ See example xml templates in
 [django_unhosted/templates/webfinger/{host_meta,webfinger}.xml.example]
 (https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/templates/webfinger/).
 
+"UNHOSTED_CACHE_TIME" option can be used along with django cache subsystem to
+configure (cache) timeout for "host-meta" and "webfinger" responses (vary per
+GET query string, of course).
+
 ### WebDAV
 
 Provided remoteStorage is backed by (configurable) [Django Storage
