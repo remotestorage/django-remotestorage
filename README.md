@@ -32,7 +32,41 @@ minimum - just a few [configuration files]
 (https://docs.djangoproject.com/en/dev/topics/settings/), specifying which
 database to use, and which apps should handle which URLs.
 
-There are several ways to configure django to use the app:
+TL;DR - simple installation/setup may look like this:
+
+	# Install the app itself (or not, it can be just checked-out into a project dir)
+	git clone ~/hatch/django-unhosted
+	cd django-unhosted
+	python setup.py install
+
+	# Create django project
+	django-admin.py startproject myproject
+	cd myproject
+
+	# Update settings.py (sqlite3 is used as db here) and urls.py
+	sed -i\
+		-e 's/'\''ENGINE'\''.*/"ENGINE": "django.db.backends.sqlite3",/'\
+		-e 's/'\''NAME'\''.*/"NAME": "db.sqlite",/'\
+		-e 's/STATIC_ROOT *=/STATIC_ROOT="./static"/'\
+		myproject/settings.py
+	echo 'from django_unhosted.settings_base import *' >> myproject/settings.py
+	sed -i 's/# Examples:.*/("", include("django_unhosted.urls")),\n\n\0/' myproject/urls.py
+
+	# Create database schema and link app static files to STATIC_ROOT
+	./manage.py syncdb --noinput
+	./manage.py migrate django_unhosted
+	./manage.py collectstatic --noinput --link
+
+	# Run simple dev server
+	./manage.py runserver
+
+(since webfinger protocol **requires** some sort of XRD authentication, like
+https, it *won't work* properly on such a simple setup)
+
+Main idea is that two config files (in django project) need to be updated -
+settings.py and urls.py.
+
+There are several ways to update django settings.py to use the app:
 
 * If it's the only app in a django project, so you don't have some custom
 	settings.py already, you can use provided [settings_base.py file]
@@ -77,6 +111,14 @@ There are several ways to configure django to use the app:
 	optional apps.
 
 	This should be the most DRY, flexible and correct way to merge settings.
+
+As for urls.py, just add the following line to the list of patterns:
+
+	('', include('django_unhosted.urls')),
+
+(that'd add all the app urls to the root-path, for the complete list of these
+paths, see [django_unhosted.urls]
+(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/urls.py))
 
 Then the usual drill is to create the necessary database schema for the app (if
 you get "Settings cannot be imported" error, make sure you run that from the
