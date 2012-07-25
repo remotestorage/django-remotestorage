@@ -35,8 +35,8 @@ database to use, and which apps should handle which URLs.
 There are several ways to configure django to use the app:
 
 * If it's the only app in a django project, so you don't have some custom
-	settings.py already, you can use provided [settings.example.py file]
-	(https://github.com/mk-fg/django-unhosted/blob/master/settings.example.py)
+	settings.py already, you can use provided [settings_base.py file]
+	(https://github.com/mk-fg/django-unhosted/blob/master/settings_base.py)
 	directly.
 
 	Rename it to settings.py and put it into project root (or wherever
@@ -52,7 +52,7 @@ There are several ways to configure django to use the app:
 
 * If there's already some custom settings.py file available (or it can be
 	created along with the project by django-admin.py), add this line somewhere at
-	the bottom of it: `from django_unhosted.settings_example import *`
+	the bottom of it: `from django_unhosted.settings_base import *`
 
 	That will import all the options defined there (bare minimum that has to be
 	changed) over your settings.
@@ -68,7 +68,7 @@ There are several ways to configure django to use the app:
 
 * If you have great [django-configurations]
 	(http://django-configurations.readthedocs.org/) module installed, you can use
-	django_unhosted.settings_example.SettingsBase or SettingsFull classes to
+	django_unhosted.settings_base.SettingsBase or SettingsFull classes to
 	dynamically extend/filter stuff like MIDDLEWARE_CLASSES and
 	TEMPLATE_CONTEXT_PROCESSORS.
 
