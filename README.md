@@ -308,6 +308,24 @@ be served by local httpd instead.
 See "django_unhosted.utils.external_resources_context" context processor for
 details.
 
+Note that any/all of the UIs can (and actually should) be disabled, if they're
+not needed, just don't include them in the urlconf, cherry-picking whichever
+ones are actually needed.
+
+For example, to leave only API, OAuth2 and Webfinger enabled (no user
+registration/management interface, no demo client):
+
+	urlpatterns = patterns( '',
+		...
+		url(r'', include('django_unhosted.apps.webfinger.urls', namespace='webfinger')),
+		url(r'^oauth2/', include('django_unhosted.apps.oauth2.urls' namespace='oauth2')),
+		url(r'^api/', include('django_unhosted.apps.api.urls', namespace='api')),
+	)
+
+Remember to include namespace names (same as the subapp names), as they're used
+in the reverse() calls and template tags.
+You can use django_unhosted.utils.autons_include() in place of include() helper
+to infer these from subapp names automagically.
 
 
 Known issues
