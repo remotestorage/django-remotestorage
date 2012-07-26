@@ -180,6 +180,12 @@ There are several ways to update django settings.py to use the app:
 
 	This should be the most DRY, flexible and correct way to merge settings.
 
+Also make sure that django.contrib.messages app is installed and it's components
+are added to MIDDLEWARE_CLASSES and TEMPLATE_CONTEXT_PROCESSORS ([as per docs]
+(https://docs.djangoproject.com/en/dev/ref/contrib/messages/)).
+It is installed by default in newer django (1.4, I think), but can be disabled
+for older projects.
+
 As for urls.py, just add the following line to the list of patterns:
 
 	('', include('django_unhosted.urls')),

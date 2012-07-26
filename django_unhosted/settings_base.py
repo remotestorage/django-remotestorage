@@ -64,22 +64,24 @@ except ImportError:
 
 else:
 
+	def smart_extend(to, *classes):
+		for cls in classes:
+			if cls not in to: to += cls,
+		return to
 
 	class SettingsBase(Settings, Base):
 
 		## Request context processor is used in auth forms
 		##  and external_resources_context is used in demo views.
-		TEMPLATE_CONTEXT_PROCESSORS =\
-			Settings.TEMPLATE_CONTEXT_PROCESSORS + (
-				'django.core.context_processors.request',
-				'django_unhosted.utils.external_resources_context',
-			)
+		TEMPLATE_CONTEXT_PROCESSORS = smart_extend(
+			Settings.TEMPLATE_CONTEXT_PROCESSORS,
+			'django.core.context_processors.request',
+			'django_unhosted.utils.external_resources_context' )
 
 		## Caches XML templates for host-meta and webfinger requests.
-		TEMPLATE_LOADERS =\
-			Settings.TEMPLATE_LOADERS + (
-				'django_unhosted.apps.webfinger.xrd_gen.Loader',
-			)
+		TEMPLATE_LOADERS = smart_extend(
+			Settings.TEMPLATE_LOADERS,
+			'django_unhosted.apps.webfinger.xrd_gen.Loader' )
 
 		## CSRF middleware BREAKS WebDAV methods.
 		## See "Known Issues / WebDAV" section in README for details.
@@ -95,13 +97,12 @@ else:
 		## Use that one, if you don't need some of the optional apps here.
 
 		## Technically, "south" is not necessary, unless you need migrations.
-		INSTALLED_APPS =\
-			Settings.INSTALLED_APPS + (
-				'django_unhosted',
-				'oauth2app',
-				'crispy_forms',
-				'south',
-			)
+		INSTALLED_APPS = smart_extend(
+			Settings.INSTALLED_APPS,
+			'django_unhosted',
+			'oauth2app',
+			'crispy_forms',
+			'south' )
 
 
 
