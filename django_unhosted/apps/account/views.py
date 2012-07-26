@@ -20,18 +20,25 @@ def auth_redirect():
 	return HttpResponseRedirect(next_hop)
 
 
-@csrf_protect
+@login_required
+def client(request, client_id, action):
+	raise NotImplementedError('Not there yet')
+@login_required
+def client_action(request, client_id, action, cap=None):
+	raise NotImplementedError('Not there yet')
+
 @login_required
 def clients(request):
-	raise NotImplementedError()
 	if request.method == 'POST':
 		form = ClientRemoveForm(request.POST)
 		if form.is_valid():
 			Client.objects.filter(
 				id=form.cleaned_data['client_id'],
 				user=request.user ).delete()
-	ctx = dict( form=form,
-		clients=Client.objects.filter(user=request.user) )
+	else: form = ClientRemoveForm()
+	ctx = dict(form=form, clients=list(
+		(client, set(client.accesstoken_set.values_list('scope__key', flat=True)))
+		for client in Client.objects.filter(user=request.user) ))
 	return render_to_response(
 		'account/clients.html', ctx, RequestContext(request) )
 

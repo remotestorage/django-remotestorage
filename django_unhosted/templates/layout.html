@@ -36,6 +36,7 @@
 	{% if url_login and url_logout %}
 	<div class="navbar navbar-fixed-top"><div class="navbar-inner">
 	<div class="container">
+		<span class="brand">acct:{{ request.user }}@{{ request.get_host }}</span>
 		<ul class="nav">
 			{% if request.user.is_authenticated %}
 			<li><a href="{{ url_logout }}">Logout</a></li>
@@ -52,7 +53,7 @@
 	</div></div>
 	{% endif %}
 
-	<div class="container">
+	<div class="row-fluid">
 		{% block content %}{% endblock %}
 	</div>
 

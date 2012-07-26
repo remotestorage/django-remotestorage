@@ -1,45 +1,78 @@
 {% extends 'layout.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Your Clients{% endblock %}
+{% block style_ext %}
+	.caps form { margin-bottom: 0; }
+	.caps .cap { margin: .1em .2em; padding: 5px; }
+	.caps .cap_add { clear: both; margin: .5em 0 0 0; padding: 9px; }
+{% endblock %}
+
+{% block title %}Authorized Clients{% endblock %}
 
 {% block content %}
+	<div></div>
 
-	<h1>Your Clients</h1>
+	<div class="span9 offset2">
+		<h1>Authorized Clients</h1>
 
-	<div class="content_container">
-	{% if clients %}
-	<table class="data">
-			<tr>
-				<th>Name</th>
-				<th colspan="2">Credentials</th>
-				<th></th>
-			</tr>
-		{% for client in clients %}
-			<tr>
-				<td rowspan="2">
-					<a href="/client/{{ client.key }}">TODO: {{ client.name }}</td>
-				<td class="right">Key:</td>
-				<td class="left">{{ client.key }}</td>
-				<td rowspan="2">
-					<form method="post" action="{% url clients %}">
-						{% csrf_token %}
-						<input type="hidden" name="client_id" value="{{ client.id }}" />
-						<input type="submit" value="Remove" />
-					</form>
-				</td>
-			</tr>
-			<tr>
-				<td class="right">Secret:</td>
-				<td class="left">{{ client.secret }}</td>
-			</tr>
-		{% endfor %}
-	</table>
-	{% endif %}
-	</div>
+		{% if clients %}
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>Client</th>
+					<th>Access</th>
+				</tr>
+			</thead>
 
-	<div class="form_container">
-	{% crispy form %}
+			<tbody>
+				{% for client, scope in clients %}
+				<tr>
+
+					<td>
+						<p>Name: <a href="{% url account:client client.id %}">{{ client.name }}</a></p>
+						<p>Key: {{ client.key }}</p>
+						{% if client.description %}<p>Descripton: {{ client.description }}</p>{% endif %}
+
+						<form method="post" action="{% url account:client_action client_id=client.id action='remove' %}">
+							{% csrf_token %}
+							<p>
+								<button type="submit" class="btn btn-small btn-primary">Suspend</button>
+								<button type="submit" class="btn btn-small btn-danger">Revoke access</button>
+							</p>
+						</form>
+					</td>
+
+					<td class="caps">
+						{% for cap in scope %}
+						<div class="well pull-left cap">
+							<form action="{% url account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
+								{% csrf_token %}
+								<button class="btn btn-mini"><i class="icon-remove"></i></button>
+								{{ cap }}
+							</form>
+						</div>
+						{% endfor %}
+
+						<form method="post" class="form-inline controls"
+								action="{% url account:client_action client_id=client.id action='cap_add' %}">
+							{% csrf_token %}
+							<div class="span6 well cap_add">
+								<div class="input-prepend span9">
+									<span class="add-on"><i class="icon-plus"></i></span><input
+										class="input-small span10" id="add_cap_{{ client.key }}"
+										type="text" placeholder="some_storage:rw">
+								</div>
+								<button type="submit" class="btn">Add</button>
+							</div>
+						</form>
+					</td>
+
+				</tr>
+				{% endfor %}
+			</tbody>
+
+		</table>
+		{% endif %}
 	</div>
 
 {% endblock %}
