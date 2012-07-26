@@ -75,6 +75,8 @@ else:
 		##  and external_resources_context is used in demo views.
 		TEMPLATE_CONTEXT_PROCESSORS = smart_extend(
 			Settings.TEMPLATE_CONTEXT_PROCESSORS,
+			'django.core.context_processors.csrf',
+			'django.core.context_processors.messages',
 			'django.core.context_processors.request',
 			'django_unhosted.utils.external_resources_context' )
 
@@ -89,6 +91,11 @@ else:
 			lambda cls: cls != 'django.middleware.csrf.CsrfViewMiddleware',
 			Settings.MIDDLEWARE_CLASSES ))
 
+		## Messages middleware is used in interfaces extensively
+		MIDDLEWARE_CLASSES = smart_extend(
+			MIDDLEWARE_CLASSES,
+			'django.contrib.messages.middleware.MessageMiddleware' )
+
 
 	class SettingsFull(ConfigurationsBase):
 
@@ -99,6 +106,7 @@ else:
 		## Technically, "south" is not necessary, unless you need migrations.
 		INSTALLED_APPS = smart_extend(
 			Settings.INSTALLED_APPS,
+			'django.contrib.messages',
 			'django_unhosted',
 			'oauth2app',
 			'crispy_forms',

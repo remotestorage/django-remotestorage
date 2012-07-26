@@ -8,6 +8,7 @@ import calendar
 from django.conf import settings
 from django.conf.urls import include, url
 from django.utils.http import http_date as django_http_date
+from django.contrib import messages as django_messages
 
 
 autonamed_url = lambda pat, mod, **kwz:\
@@ -45,10 +46,20 @@ def external_resources_context(request):
 			if exists(join(settings.STATIC_ROOT, path))\
 			else url
 	return dict(
-		url_res_bootsrap=try_local( 'django_unhosted_client/bootstrap.css',
+		url_res_bootsrap=try_local( 'bootstrap/css/bootstrap.min.css',
 			'https://current.bootstrapcdn.com'
 				'/bootstrap-v204/css/bootstrap-combined.min.css' ),
 		url_res_remotestorage=try_local( 'django_unhosted_client/remoteStorage.js',
 			'http://tutorial.unhosted.5apps.com/js/remoteStorage-0.6.9.min.js' ),
 		url_res_jquery=try_local( 'django_unhosted_client/jquery.js',
 			'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' ) )
+
+
+class MessagesProxy(object):
+	def __getattr__(self, k):
+		attr = getattr(django_messages, k)
+		if k in ['debug', 'info', 'success', 'warning', 'error']:
+			attr = ft.partial(attr, extra_tags='alert-{}'.format(k), fail_silently=True)
+		return attr
+
+messages = MessagesProxy()

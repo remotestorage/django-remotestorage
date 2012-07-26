@@ -1,7 +1,12 @@
 #-*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import itertools as it, operator as op, functools as ft
+from time import time
 
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,\
+	HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib import auth
@@ -11,6 +16,7 @@ from django.views.decorators.csrf import csrf_protect
 
 from oauth2app.models import Client, AccessRange
 
+from django_unhosted.utils import messages
 from .forms import SignupForm, LoginForm, ClientRemoveForm
 
 
@@ -20,27 +26,83 @@ def auth_redirect():
 	return HttpResponseRedirect(next_hop)
 
 
+@csrf_protect
 @login_required
 def client(request, client_id, action):
 	raise NotImplementedError('Not there yet')
+
+@csrf_protect
 @login_required
 def client_action(request, client_id, action, cap=None):
-	raise NotImplementedError('Not there yet')
+	# POST-only to prevent CSRF exploits from extending/revoking access
+	if request.method != 'POST':
+		return HttpResponseNotAllowed(['POST'])
+	client = Client.objects.get(id=client_id, user=request.user) # may raise 404
 
+	if action == 'post': action = request.POST.get('action')
+
+	if action == 'remove':
+		if cap:
+			tokens = list(client.accesstoken_set.filter(scope__key=cap))
+			for token in tokens: token.scope.remove(*token.scope.filter(key=cap))
+			messages.success( request, 'Successfully revoked'
+				' capability "{}" from {} access tokens.'.format(cap, len(tokens)) )
+			return HttpResponseRedirect(reverse('account:clients'))
+		else:
+			client.delete()
+			messages.success( request,
+				'Successfully revoked access for client "{}".'.format(client.name) )
+			return HttpResponseRedirect(reverse('account:clients'))
+
+	elif action == 'block':
+		raise NotImplementedError()
+
+	elif action == 'cap_add':
+		if cap and cap != request.POST['cap']:
+			return HttpResponseBadRequest(
+				'Conflicting caps in URL/POST: {}, {}'.format(cap, request.POST['cap']) )
+		cap = cap or request.POST['cap']
+		if not cap:
+			messages.error( request,
+				'Access capability (like "path:rw") must be specified.' )
+			return HttpResponseRedirect(reverse('account:clients'))
+		cap_path, cap_perms = cap.rsplit(':', 1)
+		if set(cap_perms).difference('rw'):
+			messages.error( request, 'Invalid format'
+				' for access capability (should be like "path:rw").' )
+			return HttpResponseRedirect(reverse('account:clients'))
+		cap_range, created = AccessRange.objects.get_or_create(key=cap)
+		tokens = list(client.accesstoken_set.all())
+		for token in tokens: token.scope.add(cap_range)
+		messages.success( request, 'Successfully added'
+			' capability "{}" to {} access tokens.'.format(cap, len(tokens)) )
+		return HttpResponseRedirect(reverse('account:clients'))
+
+	elif action == 'cap_cleanup':
+		tokens = client.accesstoken_set.filter(expire__lte=time())
+		tokens_count = tokens.count()
+		tokens.delete()
+		messages.success(request, '{} access tokens removed.'.format(tokens_count))
+		return HttpResponseRedirect(reverse('account:clients'))
+
+	return HttpResponseBadRequest('Unknown action: {}'.format(action))
+
+@csrf_protect
 @login_required
 def clients(request):
-	if request.method == 'POST':
-		form = ClientRemoveForm(request.POST)
-		if form.is_valid():
-			Client.objects.filter(
-				id=form.cleaned_data['client_id'],
-				user=request.user ).delete()
-	else: form = ClientRemoveForm()
-	ctx = dict(form=form, clients=list(
-		(client, set(client.accesstoken_set.values_list('scope__key', flat=True)))
-		for client in Client.objects.filter(user=request.user) ))
-	return render_to_response(
-		'account/clients.html', ctx, RequestContext(request) )
+	client_list, ts_now = list(), time()
+	for client in Client.objects.filter(user=request.user):
+		tokens = client.accesstoken_set
+		info = dict(
+			tokens_active=tokens.filter(expire__gt=ts_now),
+			tokens_expired=tokens.filter(expire__lte=ts_now) )
+		for k in 'active', 'expired':
+			info['scope_{}'.format(k)] = set(it.ifilter( None,
+				info['tokens_{}'.format(k)].values_list('scope__key', flat=True) ))
+		info['status'] = 'No active tokens' if not info['tokens_active'].count() else 'Active'
+		client_list.append((client, info))
+	return render_to_response( 'account/clients.html',
+		dict(clients=client_list), RequestContext(request) )
 
 
 @csrf_protect
