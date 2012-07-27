@@ -253,7 +253,7 @@ See example xml templates in
 configure (cache) timeout for "host-meta" and "webfinger" responses (vary per
 GET query string, of course).
 
-### WebDAV
+### Storage / WebDAV
 
 Provided remoteStorage is backed by (configurable) [Django Storage
 API](https://docs.djangoproject.com/en/dev/topics/files/).
@@ -265,7 +265,20 @@ Different storage class can be specified by "UNHOSTED_DAV_STORAGE" parameter
 (passed to [get_storage_class]
 (https://docs.djangoproject.com/en/dev/ref/files/storage/#django.core.files.storage.get_storage_class)).
 
-Django Storage API parameters can usually be configured with MEDIA_URL and
+Examples of Storage API implementation might include:
+
+* [django-storages](http://django-storages.readthedocs.org/en/latest/index.html)
+	(S3, CouchDB, SQL, FTP, MongoDB, CloudFiles, etc)
+* [django-dropbox](https://github.com/andres-torres-marroquin/django-dropbox)
+	(Dropbox)
+* [django-riak-engine](https://github.com/oubiwann/django-riak-engine) (Riak)
+* [django-tahoestorage](https://github.com/thraxil/django-tahoestorage)
+	(Tahoe-LAFS)
+
+But basically there's a client for pretty much any data storage technology, just
+google it.
+
+Default Storage (FileStorage) parameters can be configured with MEDIA_URL and
 MEDIA_ROOT [settings](https://docs.djangoproject.com/en/dev/ref/settings/), see
 ["Managing files"](https://docs.djangoproject.com/en/dev/topics/files/) django
 docs section for details.
