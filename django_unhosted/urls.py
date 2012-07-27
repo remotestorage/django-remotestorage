@@ -2,6 +2,8 @@
 
 from django.conf.urls import patterns, url, include
 from django.conf import settings
+
+from .apps.account.urls import urlpatterns_authonly
 from .utils import autons_include
 
 ## This module cannot be imported with just "include('django_unhosted.urls')"
@@ -17,6 +19,8 @@ from .utils import autons_include
 urlconf_patterns = [
 	('webfinger', url( r'',
 		autons_include('django_unhosted.apps.webfinger.urls') )),
+	('account_authonly', url( r'^accounts/',
+		include(urlpatterns_authonly, namespace='account') )),
 	('account', url( r'^accounts/',
 		autons_include('django_unhosted.apps.account.urls') )),
 	('oauth2', url( r'^oauth2/',
@@ -26,9 +30,10 @@ urlconf_patterns = [
 	('demo', url( r'',
 		autons_include('django_unhosted.apps.demo.urls') )) ]
 
-urlconf_enabled = getattr( settings,
-	'UNHOSTED_COMPONENTS', None )
-if urlconf_enabled is None: urlconf_enabled = dict(urlconf_patterns)
+urlconf_enabled = set(getattr( settings,
+	'UNHOSTED_COMPONENTS', dict(urlconf_patterns) ) or list())
+if 'account' in urlconf_enabled:
+	urlconf_enabled.discard('account_authonly')
 
 urlconf_patterns = patterns( '',
 	*(url for name, url in urlconf_patterns if name in urlconf_enabled) )

@@ -80,6 +80,7 @@ else:
 			if cls not in to: to += cls,
 		return to
 
+
 	class SettingsBase(Settings, Base):
 
 		## Request context processor is used in auth forms
