@@ -21,7 +21,7 @@ class SignupForm(UserCreationForm):
 	def __init__(self, *argz, **kwz):
 		self.helper = fh = FormHelper()
 		fh.add_input(Submit('', 'Sign Up'))
-		fh.form_action, fh.form_method = reverse('account:signup'), 'POST'
+		fh.form_action, fh.form_method = reverse('unhosted:account:signup'), 'POST'
 		super(SignupForm, self).__init__(*argz, **kwz)
 
 
@@ -33,7 +33,7 @@ class LoginForm(forms.Form):
 	def __init__(self, *argz, **kwz):
 		self.helper = fh = FormHelper()
 		fh.add_input(Submit('login', 'Log In'))
-		fh.form_action, fh.form_method = reverse('account:login'), 'POST'
+		fh.form_action, fh.form_method = reverse('unhosted:account:login'), 'POST'
 		super(LoginForm, self).__init__(*argz, **kwz)
 
 	def clean(self):

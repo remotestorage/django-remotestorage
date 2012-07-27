@@ -36,7 +36,7 @@ class XRDTemplateCache(object):
 
 	@classmethod
 	def gen_host_meta( cls, fmt='xml', href=None,
-			template='{{ url_base }}{% url webfinger:webfinger fmt=q_fmt %}?uri={uri}',
+			template='{{ url_base }}{% url unhosted:webfinger:webfinger fmt=q_fmt %}?uri={uri}',
 			**attrs ):
 		link = Link(dict( rel='lrdd',
 			type='application/xrd+{}'.format(fmt), **attrs ), list(), list())
@@ -46,9 +46,9 @@ class XRDTemplateCache(object):
 
 	@classmethod
 	def gen_webfinger( cls, fmt='xml', href=None,
-			auth='{% url oauth2:authorize %}?user={{ q_acct }}',
+			auth='{% url unhosted:oauth2:authorize %}?user={{ q_acct }}',
 			auth_method='http://tools.ietf.org/html/draft-ietf-oauth-v2-26#section-4.2',
-			template="{% url api:storage acct=q_acct path='' %}/{category}/",
+			template="{% url unhosted:api:storage acct=q_acct path='' %}/{category}/",
 			type='https://www.w3.org/community/rww/wiki/read-write-web-00#simple' ):
 		link = Link(
 			dict(auth=auth, api='simple', rel='remoteStorage', type=type),

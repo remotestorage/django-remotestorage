@@ -72,7 +72,7 @@ def authorize(request):
 			validate_kwz.pop('check_scope')
 			authorizer.validate(request)
 	except MissingRedirectURI:
-		return HttpResponseRedirect(reverse('missing_redirect_uri'))
+		return HttpResponseRedirect(reverse('unhosted:oauth2:missing_redirect_uri'))
 	except (InvalidClient, InvalidScope) as err:
 		if isinstance(err, InvalidClient): validate_missing = 'client'
 		else: validate_missing = 'scope'

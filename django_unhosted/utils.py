@@ -16,7 +16,7 @@ autonamed_url = lambda pat, mod, **kwz:\
 
 def autons_include(mod, **kwz):
 	ns = (mod[:-5] if mod.endswith('.urls') else mod).rsplit('.', 1)[-1]
-	return include(mod, namespace=ns, **kwz)
+	return include(mod, app_name=ns, namespace=ns)
 
 
 def cors_wrapper(func):

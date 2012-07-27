@@ -41,7 +41,7 @@
 			<label class="control-label" for="userAddress">Your user address</label>
 			<div class="controls"><div class="input-append">
 				{% spaceless %}
-				<input type="text" id="userAddress" placeholder="test@localhost" />
+				<input type="text" id="userAddress" placeholder="user@somehost" />
 				<button type="submit" class="btn"
 					id="connect">Connect to remoteStorage</button>
 				<button type="submit" class="btn hidden-for-js"
@@ -126,7 +126,7 @@
 
 	{% if not request.user.is_authenticated %}
 
-	<p>Start by <a href="{% url account:signup %}">creating a user</a>.
+	<p>Start by <a href="{% url unhosted:account:signup %}">creating a user</a>.
 		Note that remoteStorage client should work even when you're
 			not logged in (what's the point of it otherwise?).</p>
 
@@ -137,7 +137,7 @@
 	<p>The following data is available to
 		authorized clients at the specified endpoint URI:</p>
 	<dl>
-		{% url api:storage acct=request.user as url_api %}
+		{% url unhosted:api:storage acct=request.user as url_api %}
 		<dt><a href="{{ url_api }}">{{ url_api }}</a></dt>
 		<dd>remoteStorage node</dd>
 	</dl>

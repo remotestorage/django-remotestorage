@@ -17,6 +17,7 @@ But since remoteStorage.js 0.7.0 for experimental API is still under heavy
 development, I haven't tested whether it works with current implementation.
 
 
+
 remoteStorage
 --------------------
 
@@ -47,6 +48,7 @@ via django admin interface otherwise), client access management interfaces and a
 simple demo client.
 
 
+
 Security
 --------------------
 
@@ -65,8 +67,10 @@ storage-server implementation [can be found here]
 lession there.
 
 
+
 Installation
 --------------------
+
 
 ### Requirements
 
@@ -84,6 +88,7 @@ bootstrapcdn.com) and [remoteStorage.js]
 (https://github.com/unhosted/remoteStorage.js), which can be served from local
 URLs, if available in STATIC_ROOT.
 See "Customization / Interfaces" for details.
+
 
 ### Deployment / configuration
 
@@ -116,7 +121,10 @@ Simple installation/setup may look like this:
 		-e 's/STATIC_ROOT *=/STATIC_ROOT="./static"/'\
 		myproject/settings.py
 	echo 'from django_unhosted.settings_base import *' >> myproject/settings.py
-	sed -i 's/# Examples:.*/("", include("django_unhosted.urls")),\n\n\0/' myproject/urls.py
+	sed -i\
+		-e '1afrom django_unhosted.urls import unhosted_patterns'\
+		-e 's/# Examples:.*/("", include(unhosted_patterns)),\n\n\0/'\
+		myproject/urls.py
 
 	# Create database schema and link app static files to STATIC_ROOT
 	./manage.py syncdb --noinput
@@ -180,13 +188,24 @@ There are several ways to update django settings.py to use the app:
 
 	This should be the most DRY, flexible and correct way to merge settings.
 
-As for urls.py, just add the following line to the list of patterns:
+As for urls.py, just add the following line to url patterns (importing
+unhosted_patterns from django_unhosted.urls module beforehand):
 
-	('', include('django_unhosted.urls')),
+	('', include(unhosted_patterns)),
 
-(that'd add all the app urls to the root-path, for the complete list of these
-paths, see [django_unhosted.urls]
-(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/urls.py))
+So it'd look something like this:
+
+	...
+	from django_unhosted.urls import unhosted_patterns
+	...
+	urlpatterns = patterns('',
+		('', include(unhosted_patterns)),
+	...
+
+That will add all the app urls to the root-path (for the complete list of these
+paths, see [the module code]
+(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/__init__.py)).
+To selectively disable some of the components, see "Customization" section.
 
 ##### Database schema
 
@@ -217,39 +236,60 @@ See django docs on [deployment process]
 instructions.
 
 
+
 Customization
 --------------------
+
+
+### Components
 
 The app consists of several independent components (sub-apps, bound to url paths
 via [django_unhosted.urls]
 (https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/urls.py)):
 
-* Webfinger (URL: {include_prefix}/.well-known/host-meta,
+* Webfinger (name: webfinger, URL: {include_prefix}/.well-known/host-meta,
 	{include_prefix}/webfinger; see [django_unhosted.apps.webfinger.urls]
-	(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/apps/webfinger/urls.py))
+	(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/apps/webfinger/urls.py),
+	there are similar urlconf-files for other subapps)
 
-* OAuth2 (URL: {include_prefix}/oauth2)
+* OAuth2 (name: oauth2, URL: {include_prefix}/oauth2)
 
-* Storage API (URL: {include_prefix}/api)
+* Storage API (name: api, URL: {include_prefix}/api)
 
-* Account/client management (URL: {include_prefix}/account)
+* Account/client management (names: "account" and "account_authonly" for
+	login/logout interfaces only, URL: {include_prefix}/accounts)
 
-* Demo client (URL: {include_prefix}/)
+* Demo client (name: demo, URL: {include_prefix}/)
 
 Some components provide links to each other (for example, webfinger provides
 links to OAuth2 and API in served XRD/JSON data), resolved as
-"{app}:{view_name}", so you can rebind these apps to any URLs, as long as you
-provide the same namespace/view_name for [django "reverse()" function]
+"unhosted:{app}:{view_name}", so you can rebind these apps to any URLs, as long
+as you provide the same namespace/view_name for [django "reverse()" function]
 (https://docs.djangoproject.com/en/dev/topics/http/urls/#reverse) and "url"
 template tags.
 
-Also note that "account" and "demo" apps can be omitted from urlconf entirely
-(if not needed), in which case there just won't be any links to them in OAuth2
-access confirmation interface and their interface pages and functionality won't
-be available.
+When including "django_unhosted.urls.unhosted_patterns" directly (not the
+urlconfs from individual components), "UNHOSTED_COMPONENTS" settings.py option
+can be set to an iterable of components which should be enabled. For example:
+
+	UNHOSTED_COMPONENTS = 'webfinger', 'oauth2', 'api'
+
+...will enable just Storage API, OAuth2 and Webfinger subapps - bare minimum for
+functional remoteStorage node.
+Unless there are some other means to authenticate django user (like
+[django.contrib.auth.views.login]
+(https://docs.djangoproject.com/en/dev/topics/auth/#django.contrib.auth.views.login)
+or django.contrib.admin), it might also be necessary to enable
+"account_authonly" interface to pass OAuth2 authorization.
+
+If "account" and "demo" apps are omitted from urlconf entirely (if not needed),
+there won't be any links to them in OAuth2 access confirmation interface.
+Their interface pages and functionality won't be accessible.
 
 "api" and "oauth2" sub-apps are not linked to any other components either, so
-may be used separately.
+may be used separately from others and from each other as well, if authorization
+server and storage are on a different hosts, but they must share a database, in
+order for api to be able to validate auth tokens.
 
 
 ### OAuth2
@@ -263,6 +303,7 @@ syncdb for the first time:
 
 See "Known Issues / OAuth2" section for more detailed explaination on why it
 should be done.
+
 
 ### Webfinger
 
@@ -284,6 +325,7 @@ See example xml templates in
 "UNHOSTED_CACHE_TIME" option can be used along with django cache subsystem to
 configure (cache) timeout for "host-meta" and "webfinger" responses (vary per
 GET query string, of course).
+
 
 ### Storage / WebDAV
 
@@ -319,9 +361,9 @@ There are also some optimization parameters:
 
 * UNHOSTED_DAV_SENDFILE (bool, default: False)
 
-	Pass Storage.path to httpd frontend via "X-Sendfile" header instead of the
-	actual contents upon request, so that response can be served by frontend
-	daemon directly without backend app involved.
+	Pass Storage.path (if supported by backend) to httpd frontend via "X-Sendfile"
+	header instead of the actual contents upon request, so that response can be
+	served by frontend daemon directly without backend app involved.
 
 * UNHOSTED_DAV_ACCEL (string, default: None)
 
@@ -344,33 +386,20 @@ There are also some optimization parameters:
 	to anything in remoteStorage just by guessing file paths or getting/reusing
 	them from js, which is really easy to exploit.
 
+
 ### Interfaces
 
 Mostly usual drill - put your own templates to loaders, specified in settings.py.
 
 External resources that are served on these pages can be put to STATIC_ROOT to
 be served by local httpd instead.
-See "django_unhosted.utils.external_resources_context" context processor for
-details.
+See [django_unhosted.utils.external_resources_context]
+(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/utils.py)
+context processor for details.
 
-Note that any/all of the UIs can (and actually should) be disabled, if they're
-not needed, just don't include them in the urlconf, cherry-picking whichever
-ones are actually needed.
-
-For example, to leave only API, OAuth2 and Webfinger enabled (no user
-registration/management interface, client management, demo client):
-
-	urlpatterns = patterns( '',
-		...
-		url(r'', include('django_unhosted.apps.webfinger.urls', namespace='webfinger')),
-		url(r'^oauth2/', include('django_unhosted.apps.oauth2.urls' namespace='oauth2')),
-		url(r'^api/', include('django_unhosted.apps.api.urls', namespace='api')),
-	)
-
-Remember to include namespace names (same as the subapp names), as they're used
-in the reverse() calls and template tags.
-You can use django_unhosted.utils.autons_include() in place of include() helper
-to infer these from subapp names automagically.
+Note that any/all of the UIs can be disabled, if they're not needed, just use
+UNHOSTED_COMPONENTS option (described in "Components" section) or don't include
+them in the urlconf, cherry-picking whichever ones are actually needed.
 
 
 Known issues
@@ -396,8 +425,8 @@ place for them).
 
 	Problems here:
 
-	* oauth2app stores "scope" as a 255-char key, while paths can potentially be
-		longer.
+	* oauth2app stores "scope" as a 255-char key, while paths / collection_names
+		can potentially be longer.
 		Upstream [pull request](https://github.com/hiidef/oauth2app/pull/31) to
 		specify field length was merged (as of 19.07.2012), so use any newer version
 		with the large-enough OAUTH2_SCOPE_LENGTH parameter in settings.py (it
@@ -412,11 +441,6 @@ place for them).
 
 	* There's some extra code/db overhead involved in maintaining the (pointless
 		in this case) table.
-
-	All these are currently addressed in [my fork of
-	oauth2app](https://github.com/mk-fg/oauth2app/), but project should work with
-	the original oauth2app, it'd just involve some limitations (like 255-char
-	paths) and extra work (creation of AccessRange models to pass validation).
 
 * remoteStorage.js 0.6.9 ("stable" version at the moment) has a [known
 	issue](http://www.w3.org/community/unhosted/wiki/RemoteStorage-2011.10#OAuth)
@@ -487,3 +511,6 @@ TODO
 
 * Add ability to inspect stored/accessed resources to the client management
 	interface.
+
+* Get rid of django-crispy-forms module dependency - there aren't that many
+	forms here as it is, so not much need for it.

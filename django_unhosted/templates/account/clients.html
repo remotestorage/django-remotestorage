@@ -30,13 +30,13 @@
 		<tr>
 
 			<td>
-				<p>Name: <a href="{% url account:client client.id %}">{{ client.name }}</a></p>
+				<p>Name: <a href="{% url unhosted:account:client client.id %}">{{ client.name }}</a></p>
 				<p>Key: {{ client.key }}</p>
 				<p>Status: {{ info.status }}</p>
 				<p>Access tokens (active / expired): {{ info.tokens_active.count }} / {{ info.tokens_expired.count }}</p>
 				{% if client.description %}<p>Descripton: {{ client.description }}</p>{% endif %}
 
-				<form method="post" action="{% url account:client_action client_id=client.id action='post' %}">
+				<form method="post" action="{% url unhosted:account:client_action client_id=client.id action='post' %}">
 					{% csrf_token %}
 					<p>
 						<button type="submit" name="action" value="block" class="btn btn-small btn-primary"
@@ -52,7 +52,7 @@
 				{% for cap in info.scope_active %}
 				<div class="well pull-left cap">
 					<form method="post"
-							action="{% url account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
+							action="{% url unhosted:account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
 						{% csrf_token %}
 						<button class="btn btn-mini" title="Revoke capability from all tokens">
 							<i class="icon-remove"></i></button>
@@ -63,7 +63,7 @@
 				{% for cap in info.scope_expired %}{% if cap not in info.scope_active %}
 				<div class="well pull-left cap muted" title="On expired access tokens only">
 					<form method="post"
-							action="{% url account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
+							action="{% url unhosted:account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
 						{% csrf_token %}
 						<button class="btn btn-mini" title="Revoke capability from all tokens">
 							<i class="icon-remove"></i></button>
@@ -74,7 +74,7 @@
 
 				<div class="well span8 cap_controls">
 					<form method="post" class="form-inline controls pull-left"
-							action="{% url account:client_action client_id=client.id action='cap_add' %}">
+							action="{% url unhosted:account:client_action client_id=client.id action='cap_add' %}">
 						{% csrf_token %}
 						<div class="input-append">
 							<input
@@ -84,7 +84,7 @@
 						</div>
 					</form>
 					<form method="post" class="form-inline controls pull-left"
-							action="{% url account:client_action client_id=client.id action='cap_cleanup' %}">
+							action="{% url unhosted:account:client_action client_id=client.id action='cap_cleanup' %}">
 						{% csrf_token %}
 						<button type="submit" class="btn"
 							title="Revoke all expired access tokens">Cleanup Expired</button>

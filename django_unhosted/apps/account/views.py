@@ -21,8 +21,8 @@ from .forms import SignupForm, LoginForm, ClientRemoveForm
 
 
 def auth_redirect():
-	try: next_hop = reverse('demo:storage_client')
-	except NoReverseMatch: next_hop = reverse('account:clients')
+	try: next_hop = reverse('unhosted:demo:storage_client')
+	except NoReverseMatch: next_hop = reverse('unhosted:account:clients')
 	return HttpResponseRedirect(next_hop)
 
 
@@ -47,12 +47,12 @@ def client_action(request, client_id, action, cap=None):
 			for token in tokens: token.scope.remove(*token.scope.filter(key=cap))
 			messages.success( request, 'Successfully revoked'
 				' capability "{}" from {} access tokens.'.format(cap, len(tokens)) )
-			return HttpResponseRedirect(reverse('account:clients'))
+			return HttpResponseRedirect(reverse('unhosted:account:clients'))
 		else:
 			client.delete()
 			messages.success( request,
 				'Successfully revoked access for client "{}".'.format(client.name) )
-			return HttpResponseRedirect(reverse('account:clients'))
+			return HttpResponseRedirect(reverse('unhosted:account:clients'))
 
 	elif action == 'block':
 		raise NotImplementedError()
@@ -65,25 +65,25 @@ def client_action(request, client_id, action, cap=None):
 		if not cap:
 			messages.error( request,
 				'Access capability (like "path:rw") must be specified.' )
-			return HttpResponseRedirect(reverse('account:clients'))
+			return HttpResponseRedirect(reverse('unhosted:account:clients'))
 		cap_path, cap_perms = cap.rsplit(':', 1)
 		if set(cap_perms).difference('rw'):
 			messages.error( request, 'Invalid format'
 				' for access capability (should be like "path:rw").' )
-			return HttpResponseRedirect(reverse('account:clients'))
+			return HttpResponseRedirect(reverse('unhosted:account:clients'))
 		cap_range, created = AccessRange.objects.get_or_create(key=cap)
 		tokens = list(client.accesstoken_set.all())
 		for token in tokens: token.scope.add(cap_range)
 		messages.success( request, 'Successfully added'
 			' capability "{}" to {} access tokens.'.format(cap, len(tokens)) )
-		return HttpResponseRedirect(reverse('account:clients'))
+		return HttpResponseRedirect(reverse('unhosted:account:clients'))
 
 	elif action == 'cap_cleanup':
 		tokens = client.accesstoken_set.filter(expire__lte=time())
 		tokens_count = tokens.count()
 		tokens.delete()
 		messages.success(request, '{} access tokens removed.'.format(tokens_count))
-		return HttpResponseRedirect(reverse('account:clients'))
+		return HttpResponseRedirect(reverse('unhosted:account:clients'))
 
 	return HttpResponseBadRequest('Unknown action: {}'.format(action))
 

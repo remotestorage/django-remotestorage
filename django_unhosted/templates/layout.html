@@ -32,9 +32,9 @@
 <body>
 
 
-	{% url account:logout as url_logout %}
-	{% url account:login as url_login %}
-	{% url demo:storage_client as url_client %}
+	{% url unhosted:account:logout as url_logout %}
+	{% url unhosted:account:login as url_login %}
+	{% url unhosted:demo:storage_client as url_client %}
 	{% if url_login and url_logout %}
 	<div class="navbar navbar-fixed-top"><div class="navbar-inner">
 	<div class="container">
@@ -42,10 +42,10 @@
 		<ul class="nav">
 			{% if request.user.is_authenticated %}
 			<li><a href="{{ url_logout }}">Logout</a></li>
-			<li><a href="{% url account:clients %}">Authorized Clients</a></li>
+			<li><a href="{% url unhosted:account:clients %}">Authorized Clients</a></li>
 			{% else %}
 			<li><a href="{{ url_login }}">Login</a></li>
-			<li><a href="{% url account:signup %}">Signup</a></li>
+			<li><a href="{% url unhosted:account:signup %}">Signup</a></li>
 			{% endif %}
 			{% if url_client %}
 			<li><a href="{{ url_client }}">Sample Client</a></li>

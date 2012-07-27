@@ -28,8 +28,8 @@ def etag_func(request, ext=None, fmt=None):
 	return sha1('\0'.join(it.imap(bytes, [
 		etag_base, ext, fmt,
 		request.build_absolute_uri('/'),
-		reverse('webfinger:webfinger'),
-		reverse('api:storage', kwargs=dict(acct='dummy', path='')),
+		reverse('unhosted:webfinger:webfinger'),
+		reverse('unhosted:api:storage', kwargs=dict(acct='dummy', path='')),
 		request.GET.get('uri', '') ]))).hexdigest()
 
 
@@ -42,7 +42,7 @@ def host_meta(request, ext=None, fmt='xml'):
 	except template.TemplateDoesNotExist:
 		page = xrd_cache.gen_host_meta( fmt=fmt,
 			template='{}?uri={{uri}}'.format(request.build_absolute_uri(
-				reverse('webfinger:webfinger', kwargs=dict(fmt=fmt)) )) ),
+				reverse('unhosted:webfinger:webfinger', kwargs=dict(fmt=fmt)) )) ),
 	else:
 		page = tpl.render(template.RequestContext(
 			request, dict(q_fmt=fmt, url_base=request.build_absolute_uri('/').rstrip('/')) ))
@@ -65,9 +65,9 @@ def webfinger(request, ext=None, fmt='xml'):
 	try: tpl = template.loader.get_template('webfinger/webfinger.{}'.format(fmt))
 	except template.TemplateDoesNotExist:
 		page = xrd_cache.gen_webfinger( fmt=fmt,
-			auth='{}?user={}'.format(reverse('oauth2:authorize'), acct),
+			auth='{}?user={}'.format(reverse('unhosted:oauth2:authorize'), acct),
 			template='{}/{{category}}/'.format(
-				reverse('api:storage', kwargs=dict(acct=acct, path='')) ) )
+				reverse('unhosted:api:storage', kwargs=dict(acct=acct, path='')) ) )
 	else:
 		page = tpl.render(template.RequestContext(
 			request, dict(q_fmt=fmt, q_subject=subject, q_acct=acct) )),

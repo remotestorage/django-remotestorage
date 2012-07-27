@@ -32,6 +32,10 @@ class Base(object):
 	CRISPY_TEMPLATE_PACK = 'bootstrap'
 	# CRISPY_FAIL_SILENTLY = not DEBUG
 
+	## Can be used to disable unnecessary functionality like Sign Up or demo client.
+	## Default: 'webfinger', 'oauth2', 'api', 'account', 'demo'
+	# UNHOSTED_COMPONENTS = 'webfinger', 'oauth2', 'api', 'account_authonly'
+
 	## Content storage and serving customization.
 	## See "Customization / WebDAV" section in README.
 	# DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
