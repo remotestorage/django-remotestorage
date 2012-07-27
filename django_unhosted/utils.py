@@ -9,6 +9,9 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.utils.http import http_date as django_http_date
 from django.contrib import messages as django_messages
+from django.contrib.auth.decorators import login_required as django_login_required
+from django.utils.functional import curry, lazy
+from django.core.urlresolvers import reverse, NoReverseMatch
 
 
 autonamed_url = lambda pat, mod, **kwz:\
@@ -17,6 +20,15 @@ autonamed_url = lambda pat, mod, **kwz:\
 def autons_include(mod, **kwz):
 	ns = (mod[:-5] if mod.endswith('.urls') else mod).rsplit('.', 1)[-1]
 	return include(mod, app_name=ns, namespace=ns)
+
+
+def reverse_with_fallback(name, fallback):
+	try: return reverse(name)
+	except NoReverseMatch: return fallback
+reverse_with_fallback_lazy = lazy(reverse_with_fallback, str)
+login_required = curry( django_login_required,
+	login_url=reverse_with_fallback_lazy(
+		'unhosted:account:login', settings.LOGIN_URL ) )
 
 
 def cors_wrapper(func):

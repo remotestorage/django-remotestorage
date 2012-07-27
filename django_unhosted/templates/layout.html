@@ -44,7 +44,7 @@
 		<ul class="nav">
 			{% if request.user.is_authenticated %}
 			<li><a href="{{ url_logout }}">Logout</a></li>
-			<li><a href="{{ url_clients }}">Authorized Clients</a></li>
+			{% if url_clients %}<li><a href="{{ url_clients }}">Authorized Clients</a></li>{% endif %}
 			{% else %}
 			<li><a href="{{ url_login }}">Login</a></li>
 			{% if url_signup %}<li><a href="{{ url_signup }}">Signup</a></li>{% endif %}

@@ -10,7 +10,6 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.utils.encoding import smart_unicode
 from django.utils.http import urlquote, urlquote_plus
 from django.core.exceptions import ObjectDoesNotExist
@@ -23,6 +22,7 @@ from oauth2app.authorize import Authorizer, TOKEN,\
 from oauth2app.models import Client, AccessRange
 from crispy_forms.helpers import FormHelper, Submit, Reset
 
+from django_unhosted.utils import messages, login_required
 from .forms import AuthorizeForm
 
 
@@ -94,8 +94,9 @@ def authorize(request):
 			#  made clear to the user.
 			messages.add_message(
 				request, messages.WARNING,
-				( 'It is the first time app from domain {}'
-					' tries to access this storage, make sure it is the one you want to.' )\
+				( 'This is the first time app from domain "{}"'
+					" tries to access this storage, make sure it's"
+					' the one you want to grant access to.' )\
 				.format(smart_unicode(authorizer.client_id)) )
 		form = form()
 		# Stored to validate that nothing has extended the submitted list client-side

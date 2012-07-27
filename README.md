@@ -99,7 +99,7 @@ database to use, and which apps should handle which URLs.
 
 ##### TL;DR
 
-Simple installation/setup may look like this:
+Simple installation/setup from scratch may look like this:
 
 	# Install the app itself (or not, it can be just checked-out into a project dir)
 	git clone https://github.com/mk-fg/django-unhosted.git
@@ -257,7 +257,7 @@ via [django_unhosted.urls]
 * Storage API (name: api, URL: {include_prefix}/api)
 
 * Account/client management (names: "account" and "account_authonly" for
-	login/logout interfaces only, URL: {include_prefix}/accounts)
+	login/logout interfaces only, URL: {include_prefix}/account)
 
 * Demo client (name: demo, URL: {include_prefix}/)
 
@@ -270,16 +270,16 @@ template tags.
 
 When including "django_unhosted.urls.unhosted_patterns" directly (not the
 urlconfs from individual components), "UNHOSTED_COMPONENTS" settings.py option
-can be set to an iterable of components which should be enabled. For example:
+can be set to an iterable of components which should be enabled, for example:
 
 	UNHOSTED_COMPONENTS = 'webfinger', 'oauth2', 'api'
 
 ...will enable just Storage API, OAuth2 and Webfinger subapps - bare minimum for
 functional remoteStorage node.
-Unless there are some other means to authenticate django user (like
+Unless some other means to authenticate django user (like
 [django.contrib.auth.views.login]
 (https://docs.djangoproject.com/en/dev/topics/auth/#django.contrib.auth.views.login)
-or django.contrib.admin), it might also be necessary to enable
+or django.contrib.admin) are enabled, it might also be necessary to enable
 "account_authonly" interface to pass OAuth2 authorization.
 
 If "account" and "demo" apps are omitted from urlconf entirely (if not needed),
@@ -287,9 +287,9 @@ there won't be any links to them in OAuth2 access confirmation interface.
 Their interface pages and functionality won't be accessible.
 
 "api" and "oauth2" sub-apps are not linked to any other components either, so
-may be used separately from others and from each other as well, if authorization
-server and storage are on a different hosts, but they must share a database, in
-order for api to be able to validate auth tokens.
+may be used separately from others and from each other as well (e.g. if
+authorization server and storage are on a different hosts), but they must share
+a database in order for api to be able to validate auth tokens.
 
 
 ### OAuth2
@@ -400,18 +400,6 @@ context processor for details.
 Note that any/all of the UIs can be disabled, if they're not needed, just use
 UNHOSTED_COMPONENTS option (described in "Components" section) or don't include
 them in the urlconf, cherry-picking whichever ones are actually needed.
-
-If "account" app auth urls are hooked up to some non-default path (not
-"/accounts/"), make sure to set at least [LOGIN_URL]
-(https://docs.djangoproject.com/en/dev/ref/settings/#login-url) option, so auth
-decorators will be able to redirect properly.
-
-This can be done in path-independent way in settings.py with
-django.core.urlresolvers.reverse_lazy() function:
-
-	from django.core.urlresolvers import reverse_lazy
-	LOGIN_URL = reverse_lazy('unhosted:account:login')
-	LOGOUT_URL = reverse_lazy('unhosted:account:logout')
 
 
 
