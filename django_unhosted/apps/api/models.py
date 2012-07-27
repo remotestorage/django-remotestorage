@@ -50,7 +50,9 @@ class StoredObject(models.Model):
 
 	def _dmeta_init(self):
 		fs_path = self.data.name
-		# TODO: handle implementation-specific stuff like OSError in a nicer way
+		if not fs.exists(fs_path): return
+		# OSError's can be raised in the default FileStorage class,
+		#  though they shouldn't be with exists() check in place (races?)
 		try: self._size = fs.size(fs_path)
 		except (NotImplementedError, OSError): pass
 		try: self._mtime = fs.modified_time(fs_path)
