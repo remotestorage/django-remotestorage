@@ -56,7 +56,14 @@
 	{% endif %}
 
 	<div class="row-fluid">
-		{% block content %}{% endblock %}
+{% block content %}
+<div></div>
+
+<div class="span8">
+{% block content_generic %}{% endblock %}
+</div>
+
+{% endblock %}
 	</div>
 
 </body>
