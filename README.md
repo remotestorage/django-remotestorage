@@ -298,11 +298,17 @@ It's highly recommended to raise database field lengths (using [oauth2app
 settings](http://hiidef.github.com/oauth2app/settings.html)) *before* running
 syncdb for the first time:
 
-* "OAUTH2_CLIENT_KEY_LENGTH = 1024" (default: 30)
-* "OAUTH2_SCOPE_LENGTH = 2048"  (default: 255)
+* OAUTH2_CLIENT_KEY_LENGTH = 1024 (default: 30)
+* OAUTH2_SCOPE_LENGTH = 2048 (default: 255)
 
 See "Known Issues / OAuth2" section for more detailed explaination on why it
 should be done.
+
+Another important tunable is OAUTH2_ACCESS_TOKEN_EXPIRATION (default: 3600 = 1
+hour), which - at least with remoteStorage.js 0.6.9 ("stable" at the moment of
+writing) - essentially sets a maximal interval between the need to visit OAuth2
+interface and get new access token, because remoteStorage.js doesn't seem to be
+able to refresh these.
 
 
 ### Webfinger

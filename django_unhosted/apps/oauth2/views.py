@@ -3,15 +3,14 @@ from __future__ import unicode_literals
 
 import itertools as it, operator as op, functools as ft
 from hashlib import sha512
-import re
+import re, urllib
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
-from django.utils.encoding import smart_unicode
-from django.utils.http import urlquote, urlquote_plus
+from django.utils.encoding import smart_unicode, iri_to_uri
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction, IntegrityError
 from django.views.decorators.csrf import csrf_protect
@@ -50,18 +49,11 @@ def authorize(request):
 	# Also see "Known Issues / OAuth2" section in README.
 	scope = request.REQUEST.get('scope')
 	if scope and ':' not in scope:
-		scope_fixed = urlquote_plus(' '.join(
-			canonical_path_spec(path) for path in scope.split(',') ), safe='/:')
-		url = request.get_full_path()
-		# TODO: proper url parsing, not regex-replace hack
-		for scope in urlquote(scope, safe=''), scope,\
-				 urlquote(scope), urlquote(scope, safe=','), urlquote_plus(scope):
-			url_fixed = re.sub(
-				r'(?<=\?|&)scope={}(?=&|$)'.format(re.escape(scope)),
-				'scope={}'.format(scope_fixed), url )
-			if url != url_fixed: break
-		else: raise ValueError('Failed to create redirect URL with fixed "scope" parameter')
-		return HttpResponseRedirect(url_fixed)
+		query = urllib.urlencode(dict(it.chain(
+			request.REQUEST.items(),
+			[('scope', ' '.join(
+				canonical_path_spec(path) for path in scope.split(',') ))] )))
+		return HttpResponseRedirect('{}?{}'.format(request.path, iri_to_uri(query)))
 
 	# Process OAuth2 request from query_string
 	authorizer = Authorizer(response_type=TOKEN)
