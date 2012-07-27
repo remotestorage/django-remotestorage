@@ -220,6 +220,38 @@ instructions.
 Customization
 --------------------
 
+The app consists of several independent components (sub-apps, bound to url paths
+via [django_unhosted.urls]
+(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/urls.py)):
+
+* Webfinger (URL: {include_prefix}/.well-known/host-meta,
+	{include_prefix}/webfinger; see [django_unhosted.apps.webfinger.urls]
+	(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/apps/webfinger/urls.py))
+
+* OAuth2 (URL: {include_prefix}/oauth2)
+
+* Storage API (URL: {include_prefix}/api)
+
+* Account/client management (URL: {include_prefix}/account)
+
+* Demo client (URL: {include_prefix}/)
+
+Some components provide links to each other (for example, webfinger provides
+links to OAuth2 and API in served XRD/JSON data), resolved as
+"{app}:{view_name}", so you can rebind these apps to any URLs, as long as you
+provide the same namespace/view_name for [django "reverse()" function]
+(https://docs.djangoproject.com/en/dev/topics/http/urls/#reverse) and "url"
+template tags.
+
+Also note that "account" and "demo" apps can be omitted from urlconf entirely
+(if not needed), in which case there just won't be any links to them in OAuth2
+access confirmation interface and their interface pages and functionality won't
+be available.
+
+"api" and "oauth2" sub-apps are not linked to any other components either, so
+may be used separately.
+
+
 ### OAuth2
 
 It's highly recommended to raise database field lengths (using [oauth2app
@@ -326,7 +358,7 @@ not needed, just don't include them in the urlconf, cherry-picking whichever
 ones are actually needed.
 
 For example, to leave only API, OAuth2 and Webfinger enabled (no user
-registration/management interface, no demo client):
+registration/management interface, client management, demo client):
 
 	urlpatterns = patterns( '',
 		...
