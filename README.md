@@ -453,5 +453,5 @@ TODO
 	apps always ask for everything and user is presented with "all or nothing"
 	choice.
 
-* Client (app which has access to user's storage) management interface with the
-	ability to easily revoke access and maybe inspect stored/accessed resources.
+* Add ability to inspect stored/accessed resources to the client management
+	interface.
