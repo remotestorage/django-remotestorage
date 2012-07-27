@@ -47,12 +47,12 @@ def external_resources_context(request):
 			else url
 	return dict(
 		url_res_bootsrap=try_local( 'bootstrap/css/bootstrap.min.css',
-			'https://current.bootstrapcdn.com'
+			'http://current.bootstrapcdn.com'
 				'/bootstrap-v204/css/bootstrap-combined.min.css' ),
 		url_res_remotestorage=try_local( 'django_unhosted_client/remoteStorage.js',
 			'http://tutorial.unhosted.5apps.com/js/remoteStorage-0.6.9.min.js' ),
 		url_res_jquery=try_local( 'django_unhosted_client/jquery.js',
-			'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' ) )
+			'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' ) )
 
 
 class MessagesProxy(object):
