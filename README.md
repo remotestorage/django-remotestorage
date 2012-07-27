@@ -401,6 +401,19 @@ Note that any/all of the UIs can be disabled, if they're not needed, just use
 UNHOSTED_COMPONENTS option (described in "Components" section) or don't include
 them in the urlconf, cherry-picking whichever ones are actually needed.
 
+If "account" app auth urls are hooked up to some non-default path (not
+"/accounts/"), make sure to set at least [LOGIN_URL]
+(https://docs.djangoproject.com/en/dev/ref/settings/#login-url) option, so auth
+decorators will be able to redirect properly.
+
+This can be done in path-independent way in settings.py with
+django.core.urlresolvers.reverse_lazy() function:
+
+	from django.core.urlresolvers import reverse_lazy
+	LOGIN_URL = reverse_lazy('unhosted:account:login')
+	LOGOUT_URL = reverse_lazy('unhosted:account:logout')
+
+
 
 Known issues
 --------------------

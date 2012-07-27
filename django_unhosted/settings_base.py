@@ -1,3 +1,6 @@
+#-*- coding: utf-8 -*-
+
+from django.core.urlresolvers import reverse_lazy
 
 class Base(object):
 
@@ -21,6 +24,10 @@ class Base(object):
 	## Use django.contrib.staticfiles to manage these.
 	# STATIC_ROOT = ...
 	# STATIC_URL = ...
+
+	## Use these if account app is located in some custom path
+	# LOGIN_URL = reverse_lazy('unhosted:account:login')
+	# LOGOUT_URL = reverse_lazy('unhosted:account:logout')
 
 	## Size of oauth2app model fields.
 	## See "Known Issues / OAuth2" section

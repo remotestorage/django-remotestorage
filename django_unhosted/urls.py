@@ -17,7 +17,7 @@ from .utils import autons_include
 urlconf_patterns = [
 	('webfinger', url( r'',
 		autons_include('django_unhosted.apps.webfinger.urls') )),
-	('account', url( r'^account/',
+	('account', url( r'^accounts/',
 		autons_include('django_unhosted.apps.account.urls') )),
 	('oauth2', url( r'^oauth2/',
 		autons_include('django_unhosted.apps.oauth2.urls') )),
