@@ -3,12 +3,12 @@
 
 {% block title %}Login{% endblock %}
 
-{% block content %}
+{% block content_generic %}
 
-	<h1>Login</h1>
+<h1>Login</h1>
 
-	<div class="form_container">
-	{% crispy form %}
-	</div>
+<div>
+{% crispy form %}
+</div>
 
 {% endblock %}

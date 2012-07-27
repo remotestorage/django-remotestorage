@@ -2,16 +2,16 @@
 
 {% block title %}Logout{% endblock %}
 
-{% block content %}
+{% block content_generic %}
 
 <h1>Logout</h1>
 
-<div class="content_container">
+<div>
 	<p>You are now logged out.</p>
 
 	{% url demo:storage_client as url_client %}
 	{% if url_client %}
-	<p>Return to the <a href="{{ url_client }}">Back to client</a>.</p>
+	<p>Return the to <a href="{{ url_client }}">client page</a>.</p>
 	{% endif %}
 
 </div>
