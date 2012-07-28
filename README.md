@@ -354,8 +354,9 @@ Examples of Storage API implementation might include:
 * [django-tahoestorage](https://github.com/thraxil/django-tahoestorage)
 	(Tahoe-LAFS)
 
-But basically there's a client for pretty much any data storage technology, just
-google it.
+But basically there's a client for pretty much any data storage technology -
+just google it, install and set UNHOSTED_DAV_STORAGE (or DEFAULT_FILE_STORAGE)
+to it.
 
 Default Storage (FileStorage) parameters can be configured with MEDIA_URL and
 MEDIA_ROOT [settings](https://docs.djangoproject.com/en/dev/ref/settings/), see
