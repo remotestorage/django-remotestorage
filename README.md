@@ -78,15 +78,15 @@ Installation
 
 * [Django](http://djangoproject.com)
 * [Django OAuth 2.0 Server App (oauth2app)](http://hiidef.github.com/oauth2app/)
-* (optinal, recommended) [South](http://south.aeracode.org) - for automated
+* (optional, recommended) [South](http://south.aeracode.org) - for automated
 	database schema updates
 
-Note that various interfaces of the app use some external resources, like
-[Twitter Bootstrap] (http://twitter.github.com/bootstrap/) CSS file (served from
+Various interfaces of the app use some external resources, like [Twitter
+Bootstrap] (http://twitter.github.com/bootstrap/) CSS file (served from
 bootstrapcdn.com) and [remoteStorage.js]
 (https://github.com/unhosted/remoteStorage.js), which can be served from local
-URLs, if available in STATIC_ROOT.
-See "Customization / Interfaces" for details.
+URLs, if available in STATIC_ROOT.  See "Customization / Interfaces" for
+details.
 
 
 ### Deployment / configuration
@@ -114,15 +114,17 @@ Simple installation/setup from scratch may look like this:
 	cd myproject
 
 	# Update settings.py (sqlite3 is used as db here) and urls.py
-	sed -i\
-		-e 's/'\''ENGINE'\''.*/"ENGINE": "django.db.backends.sqlite3",/'\
-		-e 's/'\''NAME'\''.*/"NAME": "db.sqlite",/'\
-		-e 's/STATIC_ROOT *=/STATIC_ROOT="./static"/'\
+	sed -i \
+		-e 's/'\''ENGINE'\''.*/"ENGINE": "django.db.backends.sqlite3",/' \
+		-e 's/'\''NAME'\''.*/"NAME": "db.sqlite",/' \
+		-e 's/STATIC_ROOT *=/STATIC_ROOT="./static"/' \
 		myproject/settings.py
-	echo 'from django_unhosted.settings_base import *' >> myproject/settings.py
-	sed -i\
-		-e '1afrom django_unhosted.urls import unhosted_patterns'\
-		-e 's/# Examples:.*/("", include(unhosted_patterns)),\n\n\0/'\
+	echo -e >>myproject/settings.py \
+		'from django_unhosted.settings_base import update_settings' \
+		'\nupdate_settings(__name__)'
+	sed -i \
+		-e '1afrom django_unhosted.urls import unhosted_patterns' \
+		-e 's/# Examples:.*/("", include(unhosted_patterns)),\n\n\0/' \
 		myproject/urls.py
 
 	# Create database schema and link app static files to STATIC_ROOT
@@ -143,56 +145,101 @@ settings.py and urls.py.
 
 There are several ways to update django settings.py to use the app:
 
-* If it's the only app in a django project, so you don't have some custom
-	settings.py already, you can use provided [settings_base.py file]
-	(https://github.com/mk-fg/django-unhosted/blob/master/settings_base.py)
-	directly.
+* If it's the only app in a django project and there's no custom settings.py
+	already, options from [django_unhosted.settings_base]
+	(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/settings_base.py)
+	module can be imported into it directly.
 
-	Rename it to settings.py and put it into project root (or wherever
-	[DJANGO_SETTINGS_MODULE]
+	To do that, add the following lines to the *end* of
+	"{your_app_name}/settings.py" (or wherever [DJANGO_SETTINGS_MODULE]
 	(https://docs.djangoproject.com/en/dev/topics/settings/#designating-the-settings)
-	is pointing), but make sure to look through it's settings and set at least
-	SECRET\_KEY, DATABASES, MEDIA\_\* and STATIC\_\*.
+	is used) file:
 
-	These are not the only ones that generally shouldn't be left to django, so I
-	highly recommend to review at least basic [django (app-agnostic) settings]
-	(https://docs.djangoproject.com/en/dev/topics/settings/) (and also set stuff
-	like TIME_ZONE, ADMINS, LOGGING, etc).
+		from django_unhosted.settings_base import *
 
-* If there's already some custom settings.py file available (or it can be
-	created along with the project by django-admin.py), add this line somewhere at
-	the bottom of it: `from django_unhosted.settings_base import *`
-
-	That will import all the options defined there (bare minimum that has to be
-	changed) over your settings.
+	That will import all the options there (bare minimum that has to be changed)
+	over those defined above in the original file.
 
 	Note that list of overidden options include INSTALLED_APPS, MIDDLEWARE_CLASSES
 	and such, which are not only often customized, but are usually specific to the
-	django version installed, so you can insert that import line at the
-	*beginning* of the settings.py, so everything defined after it will override
-	the options in the example.
+	django version installed, so you may alternatively insert that import line at
+	the *beginning* of the settings.py, so everything defined after it will
+	override the imported options.
 
-	And you can always just copy-paste whatever necessary by hand, which is
-	basically 3-10 lines.
+* If there's already some custom settings.py file available, there's
+	django_unhosted.settings_base.update_settings helper function available to
+	update configuration without blindly overriding any options.
 
-* If you have great [django-configurations]
-	(http://django-configurations.readthedocs.org/) module installed, you can use
-	django_unhosted.settings_base.SettingsBase or SettingsFull classes to
-	dynamically extend/filter stuff like MIDDLEWARE_CLASSES and
-	TEMPLATE_CONTEXT_PROCESSORS.
+	It can be used at the end of settings.py file like this:
 
-	SettingsFull class only differs from SettingsBase in that it also extends
-	INSTALLED_APPS with all the required (incl. django_unhosted itself) and
-	optional apps.
+		from django_unhosted.settings_base import update_settings
+		update_settings(__name__)
 
-	This should be the most DRY, flexible and correct way to merge settings.
+	Full list of changes it'll make can be found in "updates" dict at the
+	beginning of [django_unhosted.settings_base]
+	(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/settings_base.py)
+	module.
+
+	"update_settings" function also takes an optional "only" and "ignore" keywords
+	(expecting an iterable of option names), which can be used to control which
+	parameters should be updated or explicitly left untouched.
+
+	This should be more safe, flexible and future-proof way of merging necessary
+	option updates with existing (site-specific) configuration.
+
+* Update the file by hand.
+
+	Default values for the most settings can be found in [django documentation]
+	(https://docs.djangoproject.com/en/dev/ref/settings/).
+
+	For the class-listing type options, duplicate values may be omitted.
+	Note that order of MIDDLEWARE_CLASSES is significant.
+
+		OAUTH2_CLIENT_KEY_LENGTH = 1024
+		OAUTH2_SCOPE_LENGTH = 2048
+
+		TEMPLATE_CONTEXT_PROCESSORS = (
+			...whatever is already there...
+			'django.core.context_processors.csrf',
+			'django.core.context_processors.request',
+			'django.contrib.messages.context_processors.messages',
+			'django_unhosted.utils.external_resources_context',
+		)
+
+		TEMPLATE_LOADERS = (
+			...whatever is already there...
+			'django_unhosted.apps.webfinger.xrd_gen.Loader',
+		)
+
+		MIDDLEWARE_CLASSES = (
+			...whatever is already there...
+			<remove 'django.middleware.csrf.CsrfViewMiddleware', if it's there>
+			...whatever is already there, except for ConditionalGet / FetchFromCache...
+			'django.contrib.messages.middleware.MessageMiddleware',
+			...ConditionalGetMiddleware and FetchFromCacheMiddleware (and such), if used...
+		)
+
+		INSTALLED_APPS = (
+			...whatever is already there...
+			'django.contrib.messages',
+			'django_unhosted',
+			'oauth2app',
+			'south',
+		)
+
+	"south" should be omitted from INSTALLED_APPS, if not used.
+
+In any case, if you've just created django project (with "django-admin.py
+startproject" or whatever), make sure to look through it's settings.py file and
+edit at least DATABASES, MEDIA\_\* and STATIC\_\* options.  You might also want
+to set other (optonal) settings there - TIME_ZONE, ADMINS, LOGGING, etc.
 
 As for urls.py, just add the following line to url patterns (importing
 unhosted_patterns from django_unhosted.urls module beforehand):
 
 	('', include(unhosted_patterns)),
 
-So it'd look something like this:
+So it'd look like this:
 
 	...
 	from django_unhosted.urls import unhosted_patterns
@@ -216,12 +263,12 @@ same path as "settings.py" file):
 
 If [South app](http://south.aeracode.org) is installed (and specified in the
 INSTALLED_APPS), you should also use it's migrations to create tables for which
-they're available:
+they are available:
 
 	django-admin.py migrate django_unhosted
 
-Note that `django-admin.py migrate django_unhosted` can (and should) be run
-after django-unhosted app updates to apply any possible changes to db schema.
+That command can (and should) also be run after django-unhosted app updates to
+apply any possible changes to db schema.
 
 #### Running
 

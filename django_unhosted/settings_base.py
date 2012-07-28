@@ -1,131 +1,55 @@
 #-*- coding: utf-8 -*-
 
-from django.core.urlresolvers import reverse_lazy
 
-class Base(object):
+### List of updates to settings.py tuples
+###  (to be applied by "update_settings" function below).
 
-	### Make sure to set these
-
-	## Used by Django it lots of places.
-	# SECRET_KEY = ...
-
-	## SQL database is used in oauth2app, django.contrib.auth
-	##  and to store remoteStorage object paths in django_unhosted.
-	# DATABASES = ...
-
-	## MEDIA_ROOT is used by default to store *files* by Django Storage API.
-	## All the actual remoteStorage content will go there,
-	##  unless either DEFAULT_FILE_STORAGE or UNHOSTED_DAV_STORAGE
-	##  is redefined to use another Storage implementation.
-	# MEDIA_ROOT = ...
-	# MEDIA_URL = ...
-
-	## Used for several js files.
-	## Use django.contrib.staticfiles to manage these.
-	# STATIC_ROOT = ...
-	# STATIC_URL = ...
-
-	## Size of oauth2app model fields.
+updates = dict(
+	## Size of oauth2app model fields, updated only if unset.
 	## See "Known Issues / OAuth2" section
 	##  in README file for reasoning behind these.
-	OAUTH2_CLIENT_KEY_LENGTH = 1024
-	OAUTH2_SCOPE_LENGTH = 2048
+	OAUTH2_CLIENT_KEY_LENGTH = 1024,
+	OAUTH2_SCOPE_LENGTH = 2048,
 
-	## Can be used to disable unnecessary functionality like Sign Up or demo client.
-	## Default: 'webfinger', 'oauth2', 'api', 'account', 'demo'
-	# UNHOSTED_COMPONENTS = 'webfinger', 'oauth2', 'api', 'account_authonly'
+	## Request context processor is used in auth forms
+	##  and external_resources_context is used in demo views.
+	TEMPLATE_CONTEXT_PROCESSORS = [
+		'django.core.context_processors.csrf',
+		'django.core.context_processors.request',
+		'django.contrib.messages.context_processors.messages',
+		'django_unhosted.utils.external_resources_context' ],
 
-	## Content storage and serving customization.
-	## See "Customization / WebDAV" section in README.
-	# DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-	# UNHOSTED_DAV_STORAGE = DEFAULT_FILE_STORAGE
-	# UNHOSTED_DAV_SENDFILE = False
-	# UNHOSTED_DAV_ACCEL = False
-	# UNHOSTED_DAV_REDIRECT = False
+	## Caches XML templates for host-meta and webfinger requests.
+	TEMPLATE_LOADERS = [
+		'django_unhosted.apps.webfinger.xrd_gen.Loader' ],
 
-	## Cache settings for static views (host-meta, webfinger).
-	# UNHOSTED_CACHE_TIME = 3600
+	## CSRF middleware BREAKS WebDAV methods,
+	##  see "Known Issues / WebDAV" section in README for details.
+	## Messages middleware is used in interfaces extensively.
+	MIDDLEWARE_CLASSES = (
+		lambda cls: cls != 'django.middleware.csrf.CsrfViewMiddleware',
+		['django.contrib.messages.middleware.MessageMiddleware'] ),
 
+	INSTALLED_APPS = [
+		'django.contrib.messages',
+		'django_unhosted',
+		'oauth2app' ] )
 
-
-## Set all the vars from Base mixin class,
-##  so that module can be used in DJANGO_SETTINGS_MODULE
-import __main__ as mod_self
-
-for k,v in vars(Base).items():
-	if not k.isupper() or k.startswith('_'): continue
-	setattr(mod_self, k, v)
-
-
-
-## Try to import django-configurations, if available.
-##  http://django-configurations.readthedocs.org/
-
-try: from configurations import Settings
-except ImportError:
-	Settings = SettingsBase = SettingsFull = None
-
-else:
-
-	def smart_extend(to, *classes):
-		for cls in classes:
-			if cls not in to: to += cls,
-		return to
-
-
-	class SettingsBase(Settings, Base):
-
-		## Request context processor is used in auth forms
-		##  and external_resources_context is used in demo views.
-		TEMPLATE_CONTEXT_PROCESSORS = smart_extend(
-			Settings.TEMPLATE_CONTEXT_PROCESSORS,
-			'django.core.context_processors.csrf',
-			'django.core.context_processors.request',
-			'django.contrib.messages.context_processors.messages',
-			'django_unhosted.utils.external_resources_context' )
-
-		## Caches XML templates for host-meta and webfinger requests.
-		TEMPLATE_LOADERS = smart_extend(
-			Settings.TEMPLATE_LOADERS,
-			'django_unhosted.apps.webfinger.xrd_gen.Loader' )
-
-		## CSRF middleware BREAKS WebDAV methods.
-		## See "Known Issues / WebDAV" section in README for details.
-		MIDDLEWARE_CLASSES = tuple(filter(
-			lambda cls: cls != 'django.middleware.csrf.CsrfViewMiddleware',
-			Settings.MIDDLEWARE_CLASSES ))
-
-		## Messages middleware is used in interfaces extensively
-		MIDDLEWARE_CLASSES = smart_extend(
-			MIDDLEWARE_CLASSES,
-			'django.contrib.messages.middleware.MessageMiddleware' )
-
-
-	class SettingsFull(ConfigurationsBase):
-
-		## ConfigurationsBase class should always contain
-		##  everything necessary but INSTALLED_APPS.
-		## Use that one, if you don't need some of the optional apps here.
-
-		## Technically, "south" is not necessary, unless you need migrations.
-		INSTALLED_APPS = smart_extend(
-			Settings.INSTALLED_APPS,
-			'django.contrib.messages',
-			'django_unhosted',
-			'oauth2app',
-			'south' )
+## "south" app is not strictly required, unless you need migrations.
+try: import south
+except ImportError: pass
+else: updates['INSTALLED_APPS'].append('south')
 
 
 
-## Provide some pre-merged definitions (Django-1.4 version!)
-##  for import convenience or so that module can be used
-##  as a DJANGO_SETTINGS_MODULE
+### Provide some Django-1.4 defaults, so that module
+###  can be imported into DJANGO_SETTINGS_MODULE, like this:
+###
+###   from django_unhosted.settings_base import *
 
 TEMPLATE_LOADERS = (
 	'django.template.loaders.filesystem.Loader',
-	'django.template.loaders.app_directories.Loader',
-	'django_unhosted.apps.webfinger.xrd_gen.Loader',
-)
+	'django.template.loaders.app_directories.Loader' )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.contrib.auth.context_processors.auth',
@@ -133,29 +57,50 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.core.context_processors.i18n',
 	'django.core.context_processors.media',
 	'django.core.context_processors.static',
-	'django.core.context_processors.tz',
-	'django.core.context_processors.csrf',
-	'django.core.context_processors.request',
-	'django.contrib.messages.context_processors.messages',
-	'django_unhosted.utils.external_resources_context',
-)
+	'django.core.context_processors.tz' )
 
 MIDDLEWARE_CLASSES = (
 	'django.middleware.common.CommonMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
-	'django.contrib.auth.middleware.AuthenticationMiddleware',
-	'django.contrib.messages.middleware.MessageMiddleware',
-)
+	'django.contrib.auth.middleware.AuthenticationMiddleware' )
 
 INSTALLED_APPS = (
-	'django_unhosted',
-	'oauth2app',
-	'south',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.sites',
 	'django.contrib.messages',
-	'django.contrib.staticfiles',
-	'django.contrib.admin',
-)
+	'django.contrib.staticfiles' )
+
+
+
+### Optinal "smart" settings module updater.
+### Use it like this (at the end of settings.py):
+###
+###   from django_unhosted.settings_base import update_settings
+###   update_settings(__name__)
+
+import sys, types, functools
+
+def _update_module(mod, updates, only=None, ignore=None):
+
+	def _smart_extend(base, update, update_filter=None):
+		if not isinstance(update, list):
+			return update if base is None else base
+		base = list(base or list())
+		if update_filter: base = filter(update_filter, base)
+		for cls in update:
+			if cls not in base: base.append(cls)
+		return tuple(base) # django uses tuples
+
+	if isinstance(mod, types.StringTypes): mod = sys.modules[mod]
+	for k, v in updates.viewitems():
+		if (only and k not in only) or (ignore and k in ignore): continue
+		update_filter, update = v if isinstance(v, tuple) else (None, v)
+		update = _smart_extend(getattr(mod, k, None), update, update_filter)
+		setattr(mod, k, update)
+
+update_settings = functools.partial(_update_module, updates=updates)
+
+## Update django defaults (listed above) for direct imports
+update_settings(__name__)
