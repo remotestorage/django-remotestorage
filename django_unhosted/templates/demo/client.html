@@ -21,7 +21,9 @@
 	<script type="text/javascript" src="{{ url_res_jquery }}"></script>
 	<script type="text/javascript" src="{{ url_res_remotestorage }}"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}django_unhosted_client/helper.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}django_unhosted_client/tutorial.js"></script>
+	<script type="text/javascript"
+		data-receive_token_url="{% url unhosted:demo:storage_token %}"
+		src="{{ STATIC_URL }}django_unhosted_client/tutorial.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}django_unhosted_client/app.js"></script>
 {% endblock %}
 

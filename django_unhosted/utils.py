@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import itertools as it, operator as op, functools as ft
 from datetime import datetime

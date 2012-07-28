@@ -1,6 +1,12 @@
 // Accepting remoteStorage accounts in your web app
 // ------------------------------------------------
 
+var scripts = document.getElementsByTagName('script');
+var receive_token_url = $(scripts[scripts.length-1]).data('receive_token_url');
+if (receive_token_url == undefined)
+	alert('Failed to determine receive_token_url, authorization requests will fail');
+
+
 storage = function() {
 
 	// `getStorageInfo` takes a user address ("user@host") and a callback as its
@@ -29,7 +35,7 @@ storage = function() {
 	// remoteStorage provider.
 	function authorize(scopes) {
 		var storageInfo = JSON.parse(localStorage.getItem('userStorageInfo'));
-		var redirectUri = location.protocol + '//' + location.host + '/receive_token.html';
+		var redirectUri = location.protocol + '//' + location.host + receive_token_url;
 
 		// `createOAuthAddress` takes the `storageInfo`, the scopes that we
 		// intend to access and a redirect URI that the storage provider sends the
