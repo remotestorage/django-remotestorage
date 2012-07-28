@@ -1,5 +1,8 @@
 {% extends 'layout.html' %}
-{% load crispy_forms_tags %}
+
+{% block style_ext %}
+	.controls ul { list-style: none; }
+{% endblock %}
 
 {% block title %}Authorize “{{ app_host }}”{% endblock %}
 
@@ -9,8 +12,19 @@
 
 {% include "message_box.html" %}
 
-<div class="form_container">
-{% crispy form %}
+<div class="clearfix control-group">
+	<form method="post">
+		{% csrf_token %}
+
+		<div class="controls">
+			{{ form.as_p }}
+		</div>
+
+		<div class="form-actions">
+			<button type="submit" name="authorize" value="allow" class="btn">Allow</button>
+			<button type="submit" name="authorize" value="deny" class="btn">Deny</button>
+		</div>
+	</form>
 </div>
 
 {% endblock %}

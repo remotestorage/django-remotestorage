@@ -1,14 +1,24 @@
 {% extends 'layout.html' %}
-{% load crispy_forms_tags %}
 
 {% block title %}Signup{% endblock %}
 
 {% block content_generic %}
 
-	<h1>Signup</h1>
+<h1>Signup</h1>
 
-	<div class="form_container">
-	{% crispy form %}
+{% include "message_box.html" %}
+
+<div class="clearfix control-group">
+	<form method="post">
+		{% csrf_token %}
+
+		<div class="controls">
+			{{ form.as_p }}
+		</div>
+
+	<div class="form-actions">
+		<button type="submit" class="btn">Sign Up</button>
 	</div>
+</form>
 
 {% endblock %}

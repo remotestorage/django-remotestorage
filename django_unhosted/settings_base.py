@@ -31,10 +31,6 @@ class Base(object):
 	OAUTH2_CLIENT_KEY_LENGTH = 1024
 	OAUTH2_SCOPE_LENGTH = 2048
 
-	## Necessary for proper interface styles.
-	CRISPY_TEMPLATE_PACK = 'bootstrap'
-	# CRISPY_FAIL_SILENTLY = not DEBUG
-
 	## Can be used to disable unnecessary functionality like Sign Up or demo client.
 	## Default: 'webfinger', 'oauth2', 'api', 'account', 'demo'
 	# UNHOSTED_COMPONENTS = 'webfinger', 'oauth2', 'api', 'account_authonly'
@@ -117,7 +113,6 @@ else:
 			'django.contrib.messages',
 			'django_unhosted',
 			'oauth2app',
-			'crispy_forms',
 			'south' )
 
 
@@ -154,7 +149,6 @@ MIDDLEWARE_CLASSES = (
 INSTALLED_APPS = (
 	'django_unhosted',
 	'oauth2app',
-	'crispy_forms',
 	'south',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',

@@ -43,7 +43,8 @@ setup(
 		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
 		'Topic :: Software Development :: Libraries :: Python Modules' ],
 
-	install_requires = ['django-crispy-forms', 'oauth2app'],
+	install_requires = ['oauth2app'],
+	extras_require = {'db_migration': ['South']},
 
 	zip_safe = False,
 	packages = find_packages(),

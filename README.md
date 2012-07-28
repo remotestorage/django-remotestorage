@@ -78,7 +78,6 @@ Installation
 
 * [Django](http://djangoproject.com)
 * [Django OAuth 2.0 Server App (oauth2app)](http://hiidef.github.com/oauth2app/)
-* [django-crispy-forms](http://django-crispy-forms.readthedocs.org/)
 * (optinal, recommended) [South](http://south.aeracode.org) - for automated
 	database schema updates
 
@@ -518,6 +517,3 @@ TODO
 
 * Add ability to inspect stored/accessed resources to the client management
 	interface.
-
-* Get rid of django-crispy-forms module dependency - there aren't that many
-	forms here as it is, so not much need for it.

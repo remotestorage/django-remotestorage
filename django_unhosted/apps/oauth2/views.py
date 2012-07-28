@@ -19,7 +19,6 @@ from oauth2app.authorize import Authorizer, TOKEN,\
 	MissingRedirectURI, AuthorizationException, InvalidClient, InvalidScope,\
 	UnvalidatedRequest, UnauthenticatedUser
 from oauth2app.models import Client, AccessRange
-from crispy_forms.helpers import FormHelper, Submit, Reset
 
 from django_unhosted.utils import messages, login_required
 from .forms import AuthorizeForm
@@ -75,8 +74,7 @@ def authorize(request):
 		return authorizer.error_redirect()
 
 	paths = authorizer.scope
-	form = ft.partial( AuthorizeForm, paths=paths,
-		app=authorizer.client_id, action=request.get_full_path() )
+	form = ft.partial(AuthorizeForm, paths=paths, app=authorizer.client_id)
 
 	if request.method == 'GET':
 		# Display form with a glorified "authorize? yes/no" question.
@@ -136,7 +134,8 @@ def authorize(request):
 					return authorizer.error_redirect()
 			authorizer.scope = paths_auth
 			return authorizer.grant_redirect()\
-				if form.cleaned_data['authorize'] == 'Yes' else authorizer.error_redirect()
+				if form.cleaned_data['authorize'] == 'allow'\
+				else authorizer.error_redirect()
 
 	if request.method in ['GET', 'POST']:
 		return render_to_response( 'oauth2/authorize.html',

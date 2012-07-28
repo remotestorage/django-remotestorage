@@ -1,5 +1,4 @@
 {% extends 'layout.html' %}
-{% load crispy_forms_tags %}
 
 {% block title %}Missing Redirect URI{% endblock %}
 
@@ -7,9 +6,7 @@
 
 <h1>Missing Redirect URI</h1>
 
-<div class="content_container">
-	<p>The client requesting authorization did not
-		specify a redirect URI so we are unable to complete this request.</p>
-</div>
+<p>Unable to complete request - client requesting
+	authorization did not specify redirect URI.</p>
 
 {% endblock %}

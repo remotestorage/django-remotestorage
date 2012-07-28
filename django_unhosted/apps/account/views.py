@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_protect
 from oauth2app.models import Client, AccessRange
 
 from django_unhosted.utils import messages, login_required
-from .forms import SignupForm, LoginForm, ClientRemoveForm
+from .forms import SignupForm, LoginForm
 
 
 def auth_redirect(request, redirect_field_name='next'):
