@@ -80,8 +80,8 @@ else:
 		TEMPLATE_CONTEXT_PROCESSORS = smart_extend(
 			Settings.TEMPLATE_CONTEXT_PROCESSORS,
 			'django.core.context_processors.csrf',
-			'django.core.context_processors.messages',
 			'django.core.context_processors.request',
+			'django.contrib.messages.context_processors.messages',
 			'django_unhosted.utils.external_resources_context' )
 
 		## Caches XML templates for host-meta and webfinger requests.
@@ -134,8 +134,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 	'django.core.context_processors.media',
 	'django.core.context_processors.static',
 	'django.core.context_processors.tz',
-	'django.contrib.messages.context_processors.messages',
+	'django.core.context_processors.csrf',
 	'django.core.context_processors.request',
+	'django.contrib.messages.context_processors.messages',
 	'django_unhosted.utils.external_resources_context',
 )
 
