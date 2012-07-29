@@ -454,6 +454,30 @@ Note that any/all of the UIs can be disabled, if they're not needed, just use
 UNHOSTED_COMPONENTS option (described in "Components" section) or don't include
 them in the urlconf, cherry-picking whichever ones are actually needed.
 
+One common case of customization is the need to put whole app into some subpath
+("/unhosted" in the example) can be addressed by putting this into the project's
+root urls.py:
+
+	from django.conf.urls import patterns, include, url
+
+	from django_unhosted.apps.webfinger.urls import host_meta_patterns
+	from django_unhosted.urls import unhosted_patterns
+
+	urlpatterns = patterns('',
+		url(r'', include(host_meta_patterns)),
+		url(r'^unhosted/', include(unhosted_patterns)),
+	)
+
+That way, demo client will be available at "/unhosted" url and all the links
+will include that prefix (for example authorization link from webfinger will
+point to "/unhosted/oauth2/authorize").
+
+Make sure, however, that host_meta view of webfinger app is [available at a
+well-known url]
+(https://tools.ietf.org/html/draft-jones-appsawg-webfinger-04#section-3.1)
+"/.well-known/host-meta", hence the "host_meta_patterns" special-case link from
+root.
+
 
 
 Known issues
