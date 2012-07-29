@@ -1,11 +1,13 @@
 // Accepting remoteStorage accounts in your web app
 // ------------------------------------------------
 
+// Get the url from data-receive_token_url on this <script> tag,
+//  which can be served from any site-specific path, hence cannot be
+//  hard-coded here.
 var scripts = document.getElementsByTagName('script');
 var receive_token_url = $(scripts[scripts.length-1]).data('receive_token_url');
 if (receive_token_url == undefined)
 	alert('Failed to determine receive_token_url, authorization requests will fail');
-
 
 storage = function() {
 
