@@ -18,7 +18,8 @@ setup(
 	author = 'Mike Kazantsev',
 	author_email = 'mk.fraggod@gmail.com',
 	license = 'WTFPL',
-	keywords = 'django unhosted app remoteStorage server cloud silo',
+	keywords = 'django unhosted app remoteStorage server'
+		' cloud silo storage oauth webfinger xrd read-write-web webdav',
 	url = 'https://github.com/mk-fg/django-unhosted',
 
 	description = 'Unhosted remoteStorage server app for django',
