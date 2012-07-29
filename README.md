@@ -98,17 +98,29 @@ database to use, and which apps should handle which URLs.
 
 ##### TL;DR
 
-Simple installation/setup from scratch may look like this:
+Simple installation/setup from scratch may look like this.
 
-	# Install the app itself (or not, it can be just checked-out into a project dir)
+Install the app itself (or not, it can be just checked-out into a project dir):
+
+	pip install django-unhosted
+
+...or, to install directly from git master branch:
+
+	pip install 'git+https://github.com/mk-fg/django-unhosted.git#egg=django-unhosted'
+
+...or you can do it manually:
+
 	git clone https://github.com/mk-fg/django-unhosted.git
 	cd django-unhosted
 	python setup.py install
+	pip install -r requirements.txt # or download/install each by hand as well
 
-	# Install all the needed deps
-	pip install -r requirements.txt
+"pip" tool, mentioned above, should usually come with OS of choice, otherwise
+see [pip installation docs](http://www.pip-installer.org/en/latest/installing.html).
+Don't use "easy_install" for anything except installing the pip itself.
 
-	# Create django project
+Then create and configure a django project:
+
 	cd
 	django-admin.py startproject myproject
 	cd myproject
@@ -137,6 +149,8 @@ Simple installation/setup from scratch may look like this:
 
 (since webfinger protocol **requires** some sort of XRD authentication, like
 https, it *won't work* properly on such a simple setup)
+
+More detailed explaination of configuration process follows.
 
 ##### Django project configuration
 
