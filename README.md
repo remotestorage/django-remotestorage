@@ -62,9 +62,9 @@ and find issues there which I have a blind spot (not to mention lack of skills)
 for, thus won't be able to find on my own.
 
 Example of *obvious* (to an outsider analysis) security flaws in another
-storage-server implementation [can be found here]
-(http://crypto.junod.info/2012/05/24/owncloud-4-0-and-encryption/), learn the
-lession there.
+storage-server implementation [can be found
+here](http://crypto.junod.info/2012/05/24/owncloud-4-0-and-encryption/),
+learn the lession there.
 
 
 
@@ -82,18 +82,18 @@ Installation
 	database schema updates
 
 Various interfaces of the app use some external resources, like [Twitter
-Bootstrap] (http://twitter.github.com/bootstrap/) CSS file (served from
-bootstrapcdn.com) and [remoteStorage.js]
-(https://github.com/unhosted/remoteStorage.js), which can be served from local
-URLs, if available in STATIC_ROOT.  See "Customization / Interfaces" for
-details.
+Bootstrap](http://twitter.github.com/bootstrap/) CSS file (served from
+bootstrapcdn.com) and
+[remoteStorage.js](https://github.com/unhosted/remoteStorage.js), which can be
+served from local URLs, if available in STATIC_ROOT.  See "Customization /
+Interfaces" for details.
 
 
 ### Deployment / configuration
 
 Django apps are deployed as a part of "django project", which is - at it's
-minimum - just a few [configuration files]
-(https://docs.djangoproject.com/en/dev/topics/settings/), specifying which
+minimum - just a few [configuration
+files](https://docs.djangoproject.com/en/dev/topics/settings/), specifying which
 database to use, and which apps should handle which URLs.
 
 ##### TL;DR
@@ -160,13 +160,12 @@ settings.py and urls.py.
 There are several ways to update django settings.py to use the app:
 
 * If it's the only app in a django project and there's no custom settings.py
-	already, options from [django_unhosted.settings_base]
-	(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/settings_base.py)
+	already, options from [django_unhosted.settings_base](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/settings_base.py)
 	module can be imported into it directly.
 
 	To do that, add the following lines to the *end* of
-	"{your_app_name}/settings.py" (or wherever [DJANGO_SETTINGS_MODULE]
-	(https://docs.djangoproject.com/en/dev/topics/settings/#designating-the-settings)
+	"{your_app_name}/settings.py" (or wherever
+	[DJANGO_SETTINGS_MODULE](https://docs.djangoproject.com/en/dev/topics/settings/#designating-the-settings)
 	is used) file:
 
 		from django_unhosted.settings_base import *
@@ -190,8 +189,8 @@ There are several ways to update django settings.py to use the app:
 		update_settings(__name__)
 
 	Full list of changes it'll make can be found in "updates" dict at the
-	beginning of [django_unhosted.settings_base]
-	(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/settings_base.py)
+	beginning of
+	[django_unhosted.settings_base](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/settings_base.py)
 	module.
 
 	"update_settings" function also takes an optional "only" and "ignore" keywords
@@ -203,8 +202,8 @@ There are several ways to update django settings.py to use the app:
 
 * Update the file by hand.
 
-	Default values for the most settings can be found in [django documentation]
-	(https://docs.djangoproject.com/en/dev/ref/settings/).
+	Default values for the most settings can be found in [django
+	documentation](https://docs.djangoproject.com/en/dev/ref/settings/).
 
 	For the class-listing type options, duplicate values may be omitted.
 	Note that order of MIDDLEWARE_CLASSES is significant.
@@ -263,8 +262,8 @@ So it'd look like this:
 	...
 
 That will add all the app urls to the root-path (for the complete list of these
-paths, see [the module code]
-(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/__init__.py)).
+paths, see [the module
+code](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/__init__.py)).
 To selectively disable some of the components, see "Customization" section.
 
 ##### Database schema
@@ -286,13 +285,13 @@ apply any possible changes to db schema.
 
 #### Running
 
-Pretty much anything that supports [WSGI]
-(https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) protocol can be
-used with django - there's nothing app-specific here, just plain django, which
-is (usually) used as a backend with some httpd via wsgi.
+Pretty much anything that supports
+[WSGI](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) protocol can
+be used with django - there's nothing app-specific here, just plain django,
+which is (usually) used as a backend with some httpd via wsgi.
 
-See django docs on [deployment process]
-(https://docs.djangoproject.com/en/dev/howto/deployment/) for generic
+See django docs on [deployment
+process](https://docs.djangoproject.com/en/dev/howto/deployment/) for generic
 instructions.
 
 
@@ -304,12 +303,12 @@ Customization
 ### Components
 
 The app consists of several independent components (sub-apps, bound to url paths
-via [django_unhosted.urls]
-(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/urls.py)):
+via
+[django_unhosted.urls](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/urls.py)):
 
 * Webfinger (name: webfinger, URL: {include_prefix}/.well-known/host-meta,
-	{include_prefix}/webfinger; see [django_unhosted.apps.webfinger.urls]
-	(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/apps/webfinger/urls.py),
+	{include_prefix}/webfinger; see
+	[django_unhosted.apps.webfinger.urls](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/apps/webfinger/urls.py),
 	there are similar urlconf-files for other subapps)
 
 * OAuth2 (name: oauth2, URL: {include_prefix}/oauth2)
@@ -324,8 +323,8 @@ via [django_unhosted.urls]
 Some components provide links to each other (for example, webfinger provides
 links to OAuth2 and API in served XRD/JSON data), resolved as
 "unhosted:{app}:{view_name}", so you can rebind these apps to any URLs, as long
-as you provide the same namespace/view_name for [django "reverse()" function]
-(https://docs.djangoproject.com/en/dev/topics/http/urls/#reverse) and "url"
+as you provide the same namespace/view_name for [django "reverse()"
+function](https://docs.djangoproject.com/en/dev/topics/http/urls/#reverse) and "url"
 template tags.
 
 When including "django_unhosted.urls.unhosted_patterns" directly (not the
@@ -337,8 +336,7 @@ can be set to an iterable of components which should be enabled, for example:
 ...will enable just Storage API, OAuth2 and Webfinger subapps - bare minimum for
 functional remoteStorage node.
 Unless some other means to authenticate django user (like
-[django.contrib.auth.views.login]
-(https://docs.djangoproject.com/en/dev/topics/auth/#django.contrib.auth.views.login)
+[django.contrib.auth.views.login](https://docs.djangoproject.com/en/dev/topics/auth/#django.contrib.auth.views.login)
 or django.contrib.admin) are enabled, it might also be necessary to enable
 "account_authonly" interface to pass OAuth2 authorization.
 
@@ -385,8 +383,7 @@ django_unhosted.apps.webfinger.xrd_gen.Loader or generated dynamically (in case
 of json, if template provide can't be found).
 
 See example xml templates in
-[django_unhosted/templates/webfinger/{host_meta,webfinger}.xml.example]
-(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/templates/webfinger/).
+[django_unhosted/templates/webfinger/{host_meta,webfinger}.xml.example](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/templates/webfinger/).
 
 "UNHOSTED_CACHE_TIME" option can be used along with django cache subsystem to
 configure (cache) timeout for "host-meta" and "webfinger" responses (vary per
@@ -398,12 +395,11 @@ GET query string, of course).
 Provided remoteStorage is backed by (configurable) [Django Storage
 API](https://docs.djangoproject.com/en/dev/topics/files/).
 
-By default, [DEFAULT_FILE_STORAGE]
-(https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-DEFAULT_FILE_STORAGE)
+By default,
+[DEFAULT_FILE_STORAGE](https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-DEFAULT_FILE_STORAGE)
 storage class is used.
 Different storage class can be specified by "UNHOSTED_DAV_STORAGE" parameter
-(passed to [get_storage_class]
-(https://docs.djangoproject.com/en/dev/ref/files/storage/#django.core.files.storage.get_storage_class)).
+(passed to [get_storage_class](https://docs.djangoproject.com/en/dev/ref/files/storage/#django.core.files.storage.get_storage_class)).
 
 Examples of Storage API implementation might include:
 
@@ -460,8 +456,7 @@ Mostly usual drill - put your own templates to loaders, specified in settings.py
 
 External resources that are served on these pages can be put to STATIC_ROOT to
 be served by local httpd instead.
-See [django_unhosted.utils.external_resources_context]
-(https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/utils.py)
+See [django_unhosted.utils.external_resources_context](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/utils.py)
 context processor for details.
 
 Note that any/all of the UIs can be disabled, if they're not needed, just use
@@ -487,8 +482,7 @@ will include that prefix (for example authorization link from webfinger will
 point to "/unhosted/oauth2/authorize").
 
 Make sure, however, that host_meta view of webfinger app is [available at a
-well-known url]
-(https://tools.ietf.org/html/draft-jones-appsawg-webfinger-04#section-3.1)
+well-known url](https://tools.ietf.org/html/draft-jones-appsawg-webfinger-04#section-3.1)
 "/.well-known/host-meta", hence the "host_meta_patterns" special-case link from
 root.
 
@@ -566,10 +560,10 @@ place for them).
 
 ### WebDAV
 
-* CSRF middleware ([django.middleware.csrf.CsrfViewMiddleware]
-	(https://docs.djangoproject.com/en/dev/ref/contrib/csrf/)) must be disabled,
-	because remoteStorage.js doesn't pass django csrf tokens along with PUT (and
-	similar) requests.
+* CSRF middleware
+	([django.middleware.csrf.CsrfViewMiddleware](https://docs.djangoproject.com/en/dev/ref/contrib/csrf/))
+	must be disabled, because remoteStorage.js doesn't pass django csrf tokens
+	along with PUT (and similar) requests.
 	It's selectively enabled via decorator for app forms though.
 
 * Data is currently stored in the Django Storage, while path metadata is stored
@@ -584,8 +578,8 @@ place for them).
 
 	So make sure to backup db as well as the actual storage, or write some
 	storage-specific kludge to store metadata there as well.
-	Example would be to add a hook to [post-save django signal]
-	(https://docs.djangoproject.com/en/dev/ref/models/instances/#what-happens-when-you-save),
+	Example would be to add a hook to
+	[post-save django signal](https://docs.djangoproject.com/en/dev/ref/models/instances/#what-happens-when-you-save),
 	which would get storage path from StorageObject.data.name and store some
 	"{name}.meta" file alongside with serialized model data.
 
