@@ -85,8 +85,9 @@ Various interfaces of the app use some external resources, like [Twitter
 Bootstrap](http://twitter.github.com/bootstrap/) CSS file (served from
 bootstrapcdn.com) and
 [remoteStorage.js](https://github.com/unhosted/remoteStorage.js), which can be
-served from local URLs, if available in STATIC_ROOT.  See "Customization /
-Interfaces" for details.
+served - and **should be**, if you're using https for interfaces - from local
+URLs, if available in STATIC_ROOT.  See "Customization / Interfaces" for
+details.
 
 
 ### Deployment / configuration
@@ -458,6 +459,10 @@ External resources that are served on these pages can be put to STATIC_ROOT to
 be served by local httpd instead.
 See [django_unhosted.utils.external_resources_context](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/utils.py)
 context processor for details.
+
+Take special care to make resources local if you serve these interfaces over
+https - there's just no security gain if MitM can place any javascript (loaded
+over plain http) to a page.
 
 Note that any/all of the UIs can be disabled, if they're not needed, just use
 UNHOSTED_COMPONENTS option (described in "Components" section) or don't include
