@@ -55,9 +55,6 @@ def client_action(request, client_id, action, cap=None):
 				'Successfully revoked access for client "{}".'.format(client.name) )
 			return HttpResponseRedirect(reverse('unhosted:account:clients'))
 
-	elif action == 'block':
-		raise NotImplementedError()
-
 	elif action == 'cap_add':
 		if cap and cap != request.POST['cap']:
 			return HttpResponseBadRequest(

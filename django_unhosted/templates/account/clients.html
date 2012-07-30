@@ -38,9 +38,6 @@
 				<form method="post" action="{% url unhosted:account:client_action client_id=client.id action='post' %}">
 					{% csrf_token %}
 					<p>
-						<button type="submit" name="action" value="block" class="btn btn-small btn-primary"
-							title="Temporarily block (returning '403 Forbidden') api access requests for the client (regardless of authorization status)"
-							>Suspend</button>
 						<button type="submit" name="action" value="remove" class="btn btn-small btn-danger"
 							title="Revoke access for the client">Revoke access</button>
 					</p>
