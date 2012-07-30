@@ -81,6 +81,9 @@ Installation
 * (optional, recommended) [South](http://south.aeracode.org) - for automated
 	database schema updates
 
+oauth2app is [not on PyPI](https://github.com/hiidef/oauth2app/issues/7) at the
+moment, but pip can install it from github directly.
+
 Various interfaces of the app use some external resources, like [Twitter
 Bootstrap](http://twitter.github.com/bootstrap/) CSS file (served from
 bootstrapcdn.com) and
@@ -119,6 +122,10 @@ Install the app itself (or not, it can be just checked-out into a project dir):
 "pip" tool, mentioned above, should usually come with OS of choice, otherwise
 see [pip installation docs](http://www.pip-installer.org/en/latest/installing.html).
 Don't use "easy_install" for anything except installing the pip itself.
+
+Install oauth2app in a similar fashion:
+
+	pip install 'git+https://github.com/hiidef/oauth2app.git#egg=oauth2app'
 
 Then create and configure a django project:
 
@@ -567,6 +574,9 @@ place for them).
 	I can't see why client_id should be random or non-meaningful at the moment, if
 	there's a reason for that, please report an issue, some automatic migration to
 	hashes can probably be deployed at any time.
+
+* oauth2app is [not on PyPI](https://github.com/hiidef/oauth2app/issues/7) at
+	the moment, but pip can install it from github directly.
 
 ### WebDAV
 

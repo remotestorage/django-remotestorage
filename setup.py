@@ -44,7 +44,8 @@ setup(
 		'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
 		'Topic :: Software Development :: Libraries :: Python Modules' ],
 
-	install_requires = ['oauth2app'],
+	install_requires = ['Django'],
+	dependency_links = ['git+https://github.com/hiidef/oauth2app.git'],
 	extras_require = {'db_migration': ['South']},
 
 	zip_safe = False,
