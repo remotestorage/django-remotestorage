@@ -31,27 +31,25 @@
 
 <body>
 
-	{% url unhosted:account:logout as url_logout %}
 	{% url unhosted:account:login as url_login %}
+	{% url unhosted:account:logout as url_logout %}
 	{% url unhosted:account:signup as url_signup %}
 	{% url unhosted:account:clients as url_clients %}
-	{% url unhosted:demo:storage_client as url_client %}
+	{% url unhosted:demo:storage_client as url_demo %}
 
-	{% if url_login and url_logout %}
+	{% if url_login or url_logout or url_signup or url_clients or url_demo %}
 	<div class="navbar navbar-fixed-top"><div class="navbar-inner">
 	<div class="container">
 		<span class="brand">acct:{{ request.user }}@{{ request.get_host }}</span>
 		<ul class="nav">
 			{% if request.user.is_authenticated %}
-			<li><a href="{{ url_logout }}">Logout</a></li>
+			{% if url_logout %}<li><a href="{{ url_logout }}">Logout</a></li>{% endif %}
 			{% if url_clients %}<li><a href="{{ url_clients }}">Authorized Clients</a></li>{% endif %}
 			{% else %}
-			<li><a href="{{ url_login }}">Login</a></li>
+			{% if url_login %}<li><a href="{{ url_login }}">Login</a></li>{% endif %}
 			{% if url_signup %}<li><a href="{{ url_signup }}">Signup</a></li>{% endif %}
 			{% endif %}
-			{% if url_client %}
-			<li><a href="{{ url_client }}">Sample Client</a></li>
-			{% endif %}
+			{% if url_demo %}<li><a href="{{ url_demo }}">Sample Client</a></li>{% endif %}
 		</ul>
 	</div>
 	</div></div>

@@ -310,14 +310,18 @@ via
 * Webfinger (name: webfinger, URL: {include_prefix}/.well-known/host-meta,
 	{include_prefix}/webfinger; see
 	[django_unhosted.apps.webfinger.urls](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/apps/webfinger/urls.py),
-	there are similar urlconf-files for other subapps)
+	there are similar urlconf-files for other subapps).
 
-* OAuth2 (name: oauth2, URL: {include_prefix}/oauth2)
+* OAuth2 (name: oauth2, URL: {include_prefix}/oauth2).
 
-* Storage API (name: api, URL: {include_prefix}/api)
+* Storage API (name: api, URL: {include_prefix}/api).
 
-* Account/client management (names: "account" and "account_authonly" for
-	login/logout interfaces only, URL: {include_prefix}/account)
+* Account/client management (name: "account", URL: {include_prefix}/account).
+	Can also be enabled partially with the following names: "account_auth"
+	(login/logout forms/links), "account_auth_management" (signup form),
+	"account_client_management" (client/app access management interface for
+	logged-in users).
+	"account" is an alias for all of these interfaces.
 
 * Demo client (name: demo, URL: {include_prefix}/)
 
@@ -339,10 +343,11 @@ functional remoteStorage node.
 Unless some other means to authenticate django user (like
 [django.contrib.auth.views.login](https://docs.djangoproject.com/en/dev/topics/auth/#django.contrib.auth.views.login)
 or django.contrib.admin) are enabled, it might also be necessary to enable
-"account_authonly" interface to pass OAuth2 authorization.
+"account_auth" interface to pass OAuth2 authorization.
 
-If "account" and "demo" apps are omitted from urlconf entirely (if not needed),
-there won't be any links to them in OAuth2 access confirmation interface.
+If "account" (or it's parts) and "demo" apps are omitted from urlconf entirely
+(if not needed), there won't be any links to them in OAuth2 access confirmation
+interface.
 Their interface pages and functionality won't be accessible.
 
 "api" and "oauth2" sub-apps are not linked to any other components either, so
