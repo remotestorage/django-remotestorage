@@ -505,6 +505,26 @@ root.
 
 
 
+Commands
+--------------------
+
+### access_token_cleanup [options] [ username ... ]
+
+Remove expired OAuth access tokens (just for username(s), if specified) from the
+database.
+
+Can be occasionally run from cron (use --verbosity=0 to supress activity
+reports) to keep token number from growing indefinitely, removing non-refreshed
+or about-to-expire (with negative --grace-period) ones.
+
+Usage example:
+
+	% ./manage.py access_token_cleanup -v2 -n -t 3600 test
+	Removing token: id=1, user=test, client_name=localhost, expired=2012-07-31 03:24:30+06:00.
+	1 access token(s) removed.
+
+
+
 Known issues
 --------------------
 
