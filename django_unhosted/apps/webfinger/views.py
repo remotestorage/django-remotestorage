@@ -9,7 +9,6 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django import template
 from django.conf import settings
-from django.views.decorators.cache import cache_page
 from django.views.decorators.http import etag
 
 from django_unhosted import __version__
@@ -19,7 +18,6 @@ from .xrd_gen import xrd_cache
 
 xrd_mime = lambda fmt:\
 	'application/xrd+{}; charset={}'.format(fmt, settings.DEFAULT_CHARSET)
-cache_time = getattr(settings, 'UNHOSTED_CACHE_TIME', 3600)
 
 
 etag_base = sha1(__version__).hexdigest()
@@ -34,7 +32,6 @@ def etag_func(request, ext=None, fmt=None):
 
 
 @etag(etag_func)
-@cache_page(cache_time)
 @cors_wrapper
 def host_meta(request, ext=None, fmt='xml'):
 	assert fmt in ['xml', 'json']
@@ -50,7 +47,6 @@ def host_meta(request, ext=None, fmt='xml'):
 
 
 @etag(etag_func)
-@cache_page(cache_time)
 @cors_wrapper
 def webfinger(request, ext=None, fmt='xml'):
 	assert fmt in ['xml', 'json']
@@ -65,9 +61,10 @@ def webfinger(request, ext=None, fmt='xml'):
 	try: tpl = template.loader.get_template('webfinger/webfinger.{}'.format(fmt))
 	except template.TemplateDoesNotExist:
 		page = xrd_cache.gen_webfinger( fmt=fmt,
-			auth='{}?user={}'.format(reverse('unhosted:oauth2:authorize'), acct),
-			template='{}/{{category}}/'.format(
-				reverse('unhosted:api:storage', kwargs=dict(acct=acct, path='')) ) )
+			auth='{}?user={}'.format(
+				request.build_absolute_uri(reverse('unhosted:oauth2:authorize')), acct),
+			template='{}/{{category}}/'.format(request.build_absolute_uri(
+				reverse('unhosted:api:storage', kwargs=dict(acct=acct, path='')) )) )
 	else:
 		page = tpl.render(template.RequestContext(
 			request, dict(q_fmt=fmt, q_subject=subject, q_acct=acct) )),
