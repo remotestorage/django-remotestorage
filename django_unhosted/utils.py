@@ -36,13 +36,15 @@ def cors_wrapper(func):
 	@ft.wraps(func)
 	def wrapper(*argz, **kwz):
 		response = func(*argz, **kwz)
-		response['Access-Control-Allow-Origin'] = '*'
-		response['Access-Control-Max-Age'] = 1000
-		response['Access-Control-Allow-Headers'] = '*'
-		response['Access-Control-Allow-Credentials'] = "true"
-		response['Access-Control-Expose-Headers'] = '*'
-		# Following methods are chosen on "enough for remoteStorage.js" basis
-		response['Access-Control-Allow-Methods'] = 'OPTIONS, PUT, DELETE'
+		for k,v in [
+				('Access-Control-Allow-Origin', '*'),
+				('Access-Control-Max-Age', 1000),
+				('Access-Control-Allow-Headers', '*'),
+				('Access-Control-Allow-Credentials', 'true'),
+				('Access-Control-Expose-Headers', '*'),
+				# Following methods are chosen on "enough for remoteStorage.js" basis
+				('Access-Control-Allow-Methods', 'OPTIONS, PUT, DELETE') ]:
+			if k not in response: response[k] = v
 		return response
 	return wrapper
 

@@ -13,7 +13,7 @@ from django.http import HttpResponse,\
 from django.views.decorators.http import condition
 
 from oauth2app.authenticate import Authenticator, AuthenticationException
-from django_unhosted.utils import http_date, cors_wrapper
+from django_unhosted.utils import http_date
 
 from .models import User, StoredObject
 
@@ -33,16 +33,30 @@ def methods(path, exists=False, can_be_created=False):
 def caps(method):
 	caps, auth_required = list(), False
 	if method in [ 'OPTIONS', 'GET', 'HEAD', 'TRACE',
-		'COPY', 'MOVE', 'PROPFIND', 'PROPPATCH' ]: caps.append('r')
-	if method == 'PROPFIND': auth_required = True
-	if method in [ 'PUT', 'POST', 'MKCOL', 'DELETE',
-		'LOCK', 'UNLOCK', 'MOVE', 'PROPPATCH' ]: caps.append('w')
+			'COPY', 'MOVE', 'PROPFIND', 'PROPPATCH' ]:
+		caps.append('r')
+		if method == 'PROPFIND': auth_required = True
+	elif method in [ 'PUT', 'POST', 'MKCOL', 'DELETE',
+			'LOCK', 'UNLOCK', 'MOVE', 'PROPPATCH' ]:
+		caps.append('w')
+		auth_required = True
 	caps = {'rw', ''.join(caps)}.union(caps)
 	return caps, auth_required
 
 
-@cors_wrapper
 def storage(request, acct, path=''):
+	# Fast-path for CORS preflight requests
+	if request.method == 'OPTIONS' and request.META.get('HTTP_ORIGIN')\
+			and request.META.get('HTTP_ACCESS_CONTROL_REQUEST_METHOD'):
+		# Mirror response headers
+		response = HttpResponse('')
+		response['Access-Control-Allow-Origin'] = request.META['HTTP_ORIGIN']
+		response['Access-Control-Allow-Methods'] =\
+			request.META['HTTP_ACCESS_CONTROL_REQUEST_METHOD']
+		response['Access-Control-Allow-Headers'] =\
+			request.META.get('HTTP_ACCESS_CONTROL_REQUEST_HEADERS', '*')
+		return response
+
 	authenticator = Authenticator()
 	try: authenticator.validate(request)
 	except AuthenticationException:
