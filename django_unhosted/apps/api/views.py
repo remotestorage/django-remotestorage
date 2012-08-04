@@ -13,7 +13,7 @@ from django.http import HttpResponse,\
 from django.views.decorators.http import condition
 
 from oauth2app.authenticate import Authenticator, AuthenticationException
-from django_unhosted.utils import http_date
+from django_unhosted.utils import http_date, cors_wrapper
 
 from .models import User, StoredObject
 
@@ -44,6 +44,7 @@ def caps(method):
 	return caps, auth_required
 
 
+@cors_wrapper
 def storage(request, acct, path=''):
 	# Fast-path for CORS preflight requests
 	if request.method == 'OPTIONS' and request.META.get('HTTP_ORIGIN')\
