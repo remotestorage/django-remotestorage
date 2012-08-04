@@ -125,11 +125,12 @@ def storage_api(request, obj):
 			except NotImplementedError: pass
 
 		# Worst case - pipe through python
-		content_type = mimetypes.guess_type(obj.path)
-		if isinstance(content_type, tuple):
-			content_type = '{}; charset={}'.format(*content_type)
+		content_type, encoding = mimetypes.guess_type(obj.path)
+		content_type = 'application/data' if content_type is None\
+			else '{}; charset={}'.format(content_type, encoding)
 
-		response = HttpResponse(fs.open(obj.data.name), content_type=content_type)
+		response = HttpResponse(
+			fs.open(obj.data.name).read(), content_type=content_type )
 
 		response['Date'] = http_date()
 		if obj.size is not None: response['Content-Length'] = obj.size
