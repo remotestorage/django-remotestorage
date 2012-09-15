@@ -20,6 +20,14 @@ API:
 But since remoteStorage.js 0.7.0 for experimental API is still under heavy
 development, I haven't tested whether it works with current implementation.
 
+Package (and django app) was called django-unhosted in the past and was
+eventually renamed.  If you're using django-unhosted package, please read the
+[notes on
+migration](https://github.com/RemoteStorage/django-remotestorage#migration-from-django-unhosted)
+under
+[Installation](https://github.com/RemoteStorage/django-remotestorage#installation)
+section.
+
 
 
 remoteStorage
@@ -91,10 +99,45 @@ moment, but pip can install it from github directly.
 Various interfaces of the app use some external resources, like [Twitter
 Bootstrap](http://twitter.github.com/bootstrap/) CSS file (served from
 bootstrapcdn.com) and
-[remoteStorage.js](https://github.com/remoteStorage/remoteStorage.js), which can be
+[remoteStorage.js](https://github.com/RemoteStorage/remoteStorage.js), which can be
 served - and **should be**, if you're using https for interfaces - from local
 URLs, if available in STATIC_ROOT.  See "Customization / Interfaces" for
 details.
+
+
+### Migration from django-unhosted
+
+Package was called django-unhosted in the past, but it was decided to rename it
+before it was way too late.
+
+Unfortunately, there's no easy way to rename django app and python package,
+especially if it's undesirable to keep older package names around for eternity,
+so some manual steps have to be taken in order to migrate to the new
+(django-remotestorage) app/package.
+
+* Uninstall django-unhosted python package (either through `pip uninstall
+	django-unhosted`, OS tools, or remove module path manually).
+
+* Rename all database tables with "django_unhosted" in name to be starting with
+	"django_remotestorage" instead.  Lots of easy-to-use GUI tools (such as
+	[pgadmin](http://www.pgadmin.org/),
+	[phpPgAdmin](http://phppgadmin.sourceforge.net/),
+	[phpMyAdmin](http://www.phpmyadmin.net/),
+	[phpSQLiteAdmin](http://phpsqliteadmin.sourceforge.net/), etc) or native CLI
+	interfaces (`sqlite3 /path/to/db.sqlite`, `psql`, `mysql`, etc) can be used
+	for that.
+
+* Update settings.py and urlconf to import stuff from "django_remotestorage"
+	module instead of "django_unhosted".
+	Replace all "UNHOSTED_" in variable names to "REMOTESTORAGE_", if used in
+	settings.py.
+
+* If you have a custom urlconf and/or templates, replace references to
+	"unhosted" namespace with "remotestorage".
+
+It should fairly straightforward, but feel free to open Issue or [contact
+developers](https://github.com/RemoteStorage/django-remotestorage#contacts--support)
+if the described process doesn't work for you.
 
 
 ### Deployment / configuration
@@ -114,11 +157,11 @@ Install the app itself (or not, it can be just checked-out into a project dir):
 
 ...or, to install directly from git master branch:
 
-	pip install 'git+https://github.com/remoteStorage/django-remotestorage.git#egg=django-remotestorage'
+	pip install 'git+https://github.com/RemoteStorage/django-remotestorage.git#egg=django-remotestorage'
 
 ...or you can do it manually:
 
-	git clone https://github.com/remoteStorage/django-remotestorage.git
+	git clone https://github.com/RemoteStorage/django-remotestorage.git
 	cd django-remotestorage
 	python setup.py install
 	pip install -r requirements.txt # or download/install each by hand as well
@@ -173,7 +216,7 @@ There are several ways to update django settings.py to use the app:
 
 * If it's the only app in a django project and there's no custom settings.py
 	already, options from
-	[django_remotestorage.settings_base](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/settings_base.py)
+	[django_remotestorage.settings_base](https://github.com/RemoteStorage/django-remotestorage/blob/master/django_remotestorage/settings_base.py)
 	module can be imported into it directly.
 
 	To do that, add the following lines to the *end* of
@@ -203,7 +246,7 @@ There are several ways to update django settings.py to use the app:
 
 	Full list of changes it'll make can be found in "updates" dict at the
 	beginning of
-	[django_remotestorage.settings_base](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/settings_base.py)
+	[django_remotestorage.settings_base](https://github.com/RemoteStorage/django-remotestorage/blob/master/django_remotestorage/settings_base.py)
 	module.
 
 	"update_settings" function also takes an optional "only" and "ignore" keywords
@@ -276,7 +319,7 @@ So it'd look like this:
 
 That will add all the app urls to the root-path (for the complete list of these
 paths, see [the module
-code](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/__init__.py)).
+code](https://github.com/RemoteStorage/django-remotestorage/blob/master/django_remotestorage/__init__.py)).
 To selectively disable some of the components, see "Customization" section.
 
 ##### Database schema
@@ -317,11 +360,11 @@ Customization
 
 The app consists of several independent components (sub-apps, bound to url paths
 via
-[django_remotestorage.urls](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/urls.py)):
+[django_remotestorage.urls](https://github.com/RemoteStorage/django-remotestorage/blob/master/django_remotestorage/urls.py)):
 
 * Webfinger (name: webfinger, URL: {include_prefix}/.well-known/host-meta,
 	{include_prefix}/webfinger; see
-	[django_remotestorage.apps.webfinger.urls](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/apps/webfinger/urls.py),
+	[django_remotestorage.apps.webfinger.urls](https://github.com/RemoteStorage/django-remotestorage/blob/master/django_remotestorage/apps/webfinger/urls.py),
 	there are similar urlconf-files for other subapps).
 
 * OAuth2 (name: oauth2, URL: {include_prefix}/oauth2).
@@ -401,7 +444,7 @@ django_remotestorage.apps.webfinger.xrd_gen.Loader or generated dynamically (in 
 of json, if template provide can't be found).
 
 See example xml templates in
-[django_remotestorage/templates/webfinger/{host_meta,webfinger}.xml.example](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/templates/webfinger/).
+[django_remotestorage/templates/webfinger/{host_meta,webfinger}.xml.example](https://github.com/RemoteStorage/django-remotestorage/blob/master/django_remotestorage/templates/webfinger/).
 
 
 ### Storage / WebDAV
@@ -470,7 +513,7 @@ Mostly usual drill - put your own templates to loaders, specified in settings.py
 
 External resources that are served on these pages can be put to STATIC_ROOT to
 be served by local httpd instead.
-See [django_remotestorage.utils.external_resources_context](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/utils.py)
+See [django_remotestorage.utils.external_resources_context](https://github.com/RemoteStorage/django-remotestorage/blob/master/django_remotestorage/utils.py)
 context processor for details.
 
 Take special care to make resources local if you serve these interfaces over
@@ -638,3 +681,17 @@ TODO
 
 * Add ability to inspect stored/accessed resources to the client management
 	interface.
+
+
+Contacts / Support
+--------------------
+
+Feel free to drop by to #unhosted or #remotestorage channels on [freenode
+IRC](http://freenode.net), you can always find authors and people (developers
+included) willing to help understand, setup and resolve any issues there.
+
+Mailing lists, twitter and other channels of indirect communication can also be
+found on [Unhosted movement site](http://unhosted.org/).
+
+And of course, open Issues for [github
+repository](https://github.com/RemoteStorage/django-remotestorage).
