@@ -118,8 +118,8 @@ so some manual steps have to be taken in order to migrate to the new
 * Uninstall django-unhosted python package (either through `pip uninstall
 	django-unhosted`, OS tools, or remove module path manually).
 
-* Rename all database tables with "django_unhosted" in name to be starting with
-	"django_remotestorage" instead.  Lots of easy-to-use GUI tools (such as
+* Rename all database tables with "django\_unhosted" in name to be starting with
+	"django\_remotestorage" instead.  Lots of easy-to-use GUI tools (such as
 	[pgadmin](http://www.pgadmin.org/),
 	[phpPgAdmin](http://phppgadmin.sourceforge.net/),
 	[phpMyAdmin](http://www.phpmyadmin.net/),
@@ -127,9 +127,9 @@ so some manual steps have to be taken in order to migrate to the new
 	interfaces (`sqlite3 /path/to/db.sqlite`, `psql`, `mysql`, etc) can be used
 	for that.
 
-* Update settings.py and urlconf to import stuff from "django_remotestorage"
-	module instead of "django_unhosted".
-	Replace all "UNHOSTED_" in variable names to "REMOTESTORAGE_", if used in
+* Update settings.py and urlconf to import stuff from "django\_remotestorage"
+	module instead of "django\_unhosted".
+	Replace all "UNHOSTED\_" in variable names to "REMOTESTORAGE\_", if used in
 	settings.py.
 
 * If you have a custom urlconf and/or templates, replace references to
