@@ -20,7 +20,7 @@ setup(
 	license = 'WTFPL',
 	keywords = 'django unhosted app remoteStorage server'
 		' cloud silo storage oauth webfinger xrd read-write-web webdav',
-	url = 'https://github.com/remoteStorage/django-remotestorage',
+	url = 'https://github.com/RemoteStorage/django-remotestorage',
 
 	description = 'Unhosted remoteStorage server app for django',
 	long_description = readme,
