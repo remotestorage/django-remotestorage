@@ -1,0 +1,137 @@
+{% extends "layout.html" %}
+
+{% block license %}<!--
+{% include "demo/LICENSE.unhosted" %}-->
+{% endblock %}
+
+{% block title %}Sample remoteStorage client{% endblock %}
+
+{% block style_ext %}
+.hidden-for-js { display: none; }
+.well-shallow { position: relative; padding: 9px; }
+.well-shallow .well-corner { position: absolute; top: 9px; right: 9px; }
+.well-shallow .well-corner span.add-on:first-child { border-radius: 5px 0 0 5px; }
+.well-shallow .well-corner span.add-on:last-child { border-radius: 0 5px 5px 0; }
+.well-shallow .well-corner .progress { margin: 5px 0; }
+.well-shallow .well-corner .bar { width: 100%; }
+{% endblock %}
+
+
+{% block head_ext %}
+	<script type="text/javascript" src="{{ url_res_jquery }}"></script>
+	<script type="text/javascript" src="{{ url_res_remotestorage }}"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}django_remotestorage_client/helper.js"></script>
+	<script type="text/javascript"
+		data-receive_token_url="{% url remotestorage:demo:storage_token %}"
+		src="{{ STATIC_URL }}django_remotestorage_client/tutorial.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}django_remotestorage_client/app.js"></script>
+{% endblock %}
+
+{% block content_generic %}
+
+<section id="intro">
+	<p>
+		This is a
+		sample <a href="https://github.com/remotestorage/remoteStorage.js">remoteStorage.js</a>
+		client for retrieving and storing data on a remoteStorage-compatible host.
+	</p>
+</section>
+
+<section class="well well-shallow form-inline" id="connection">
+	<div class="well-corner">
+		<div id="states" class="input-append">
+			{% spaceless %}
+			<span id="connectionState" class="add-on">disconnected</span>
+			<span id="authorizedState" class="add-on">not authorized</span>
+			{% endspaceless %}
+		</div>
+		<div id="connectionSpinner"
+				class="progress progress-striped progress-success active hidden-for-js">
+			<div class="bar"></div></div>
+	</div>
+
+	<div class="control-group">
+		<label class="control-label" for="userAddress">Your user address</label>
+		<div class="controls"><div class="input-append">
+			{% spaceless %}
+			<input type="text" id="userAddress" placeholder="user@somehost" />
+			<button type="submit" class="btn"
+				id="connect">Connect to remoteStorage</button>
+			<button type="submit" class="btn hidden-for-js"
+				id="disconnect">Disconnect</button>
+			<button type="submit" class="btn"
+				id="authorize">Authorize access</button>
+			<button type="submit" class="btn hidden-for-js"
+				id="deauthorize">Deauthorize access</button>
+			{% endspaceless %}
+		</div></div>
+	</div>
+</section>
+
+<section class="well well-shallow form-inline" id="public_storage">
+	<div class="well-corner span3">
+		<div id="fetchPublicSpinner"
+				class="progress progress-striped progress-success active hidden-for-js">
+			<div class="bar"></div></div>
+		<div id="publishPublicSpinner"
+				class="progress progress-striped progress-danger active hidden-for-js">
+			<div class="bar"></div></div>
+	</div>
+
+	<h2 id="publicTitle">Read access for "public" category</h2>
+
+	<div class="control-group">
+		<label class="control-label" for="publicKey">Key</label>
+		<div class="controls"><div class="input-append">
+			{% spaceless %}
+			<input type="text" id="publicKey" value="foo" />
+			<button type="submit" class="btn"
+				id="fetchPublicKey">Fetch</button>
+			{% endspaceless %}
+		</div></div>
+
+		<label class="control-label" for="publicValue">Value</label>
+		<div class="controls"><div class="input-append">
+			{% spaceless %}
+			<input type="text" id="publicValue" />
+			<button type="submit" class="btn"
+				id="publishPublic">Save</button>
+			{% endspaceless %}
+		</div></div>
+	</div>
+</section>
+
+<section class="well well-shallow form-inline" id="private_storage">
+	<div class="well-corner span3">
+		<div id="fetchTutorialSpinner"
+				class="progress progress-striped progress-success active hidden-for-js">
+			<div class="bar"></div></div>
+		<div id="publishTutorialSpinner"
+				class="progress progress-striped progress-danger active hidden-for-js">
+			<div class="bar"></div></div>
+	</div>
+
+	<h2>Read/write access for "tutorial" category</h2>
+
+	<div class="control-group">
+		<label class="control-label" for="tutorialKey">Key</label>
+		<div class="controls"><div class="input-append">
+			{% spaceless %}
+			<input type="text" id="tutorialKey" value="bar" />
+			<button type="submit" class="btn"
+				id="fetchTutorialKey">Fetch</button>
+			{% endspaceless %}
+		</div></div>
+
+		<label class="control-label" for="tutorialValue">Value</label>
+		<div class="controls"><div class="input-append">
+			{% spaceless %}
+			<input type="text" id="tutorialValue" />
+			<button type="submit" class="btn"
+				id="publishTutorial">Save</button>
+			{% endspaceless %}
+		</div></div>
+	</div>
+</section>
+
+{% endblock %}

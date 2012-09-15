@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+{% block title %}Logout{% endblock %}
+
+{% block content_generic %}
+
+<h1>Logout</h1>
+
+<div>
+	<p>You are now logged out.</p>
+
+	{% url remotestorage:demo:storage_client as url_client %}
+	{% if url_client %}
+	<p>Return the to <a href="{{ url_client }}">demo client page</a>.</p>
+	{% endif %}
+
+</div>
+
+{% endblock %}

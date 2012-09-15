@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<XRD xmlns='http://docs.oasis-open.org/ns/xri/xrd-1.0'>
+	<Link rel='remoteStorage'
+		api='simple'
+		auth='{% url remotestorage:oauth2:authorize %}?user={{ q_acct }}'
+		template='{% url remotestorage:api:storage q_acct %}/{category}/' />
+</XRD>

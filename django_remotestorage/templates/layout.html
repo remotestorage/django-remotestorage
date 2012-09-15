@@ -1,0 +1,70 @@
+{% block license %}{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+	<title>Django.remoteStorage : {% block title %}{% endblock %}</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<link rel="stylesheet" href="{{ url_res_bootsrap }}">
+	<style type="text/css">
+		body {
+			padding-top: 60px;
+			padding-bottom: 40px;
+		}
+		.messages { margin: 1em 0 1em 1em; list-style: none; }
+		.messages .alert { display: inline-block; margin-bottom: .5em; }
+		{% block style_ext %}{% endblock %}
+	</style>
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+		{% block head_ext %}{% endblock %}
+</head>
+
+<body>
+
+	{% url remotestorage:account:login as url_login %}
+	{% url remotestorage:account:logout as url_logout %}
+	{% url remotestorage:account:signup as url_signup %}
+	{% url remotestorage:account:clients as url_clients %}
+	{% url remotestorage:demo:storage_client as url_demo %}
+
+	{% if url_login or url_logout or url_signup or url_clients or url_demo %}
+	<div class="navbar navbar-fixed-top"><div class="navbar-inner">
+	<div class="container">
+		<span class="brand">acct:{{ request.user }}@{{ request.get_host }}</span>
+		<ul class="nav">
+			{% if request.user.is_authenticated %}
+			{% if url_logout %}<li><a href="{{ url_logout }}">Logout</a></li>{% endif %}
+			{% if url_clients %}<li><a href="{{ url_clients }}">Authorized Clients</a></li>{% endif %}
+			{% else %}
+			{% if url_login %}<li><a href="{{ url_login }}">Login</a></li>{% endif %}
+			{% if url_signup %}<li><a href="{{ url_signup }}">Signup</a></li>{% endif %}
+			{% endif %}
+			{% if url_demo %}<li><a href="{{ url_demo }}">Sample Client</a></li>{% endif %}
+		</ul>
+	</div>
+	</div></div>
+	{% endif %}
+
+	<div class="row-fluid">
+{% block content %}
+<div></div>
+
+<div class="span8">
+{% block content_generic %}{% endblock %}
+</div>
+
+{% endblock %}
+	</div>
+
+</body>
+</html>

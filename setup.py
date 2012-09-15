@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 import os
 
-from django_unhosted import __version__
+from django_remotestorage import __version__
 
 pkg_root = os.path.dirname(__file__)
 
@@ -13,14 +13,14 @@ except IOError: readme = ''
 
 setup(
 
-	name = 'django-unhosted',
+	name = 'django-remotestorage',
 	version = __version__,
 	author = 'Mike Kazantsev',
 	author_email = 'mk.fraggod@gmail.com',
 	license = 'WTFPL',
 	keywords = 'django unhosted app remoteStorage server'
 		' cloud silo storage oauth webfinger xrd read-write-web webdav',
-	url = 'https://github.com/mk-fg/django-unhosted',
+	url = 'https://github.com/remoteStorage/django-remotestorage',
 
 	description = 'Unhosted remoteStorage server app for django',
 	long_description = readme,

@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block license %}<!--
+{% include "demo/LICENSE.unhosted" %}-->
+{% endblock %}
+
+{% block title %}Sample remoteStorage client{% endblock %}
+
+{% block head_ext %}
+	<script type="text/javascript" src="{{ url_res_remotestorage }}"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}django_remotestorage_client/token.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<p>Closing dialog...</p>
+
+{% endblock %}

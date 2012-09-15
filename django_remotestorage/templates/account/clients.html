@@ -1,0 +1,101 @@
+{% extends 'layout.html' %}
+
+{% block style_ext %}
+	.caps form { margin-bottom: 0; }
+	.caps .cap { margin: .1em .2em; padding: 5px; }
+	.caps .cap_controls { clear: both; margin: .5em 0 0 0; padding: 9px; }
+	.caps .cap_controls form { margin-right: .5em; }
+{% endblock %}
+
+{% block title %}Authorized Clients{% endblock %}
+
+{% block content_generic %}
+
+<h1>Authorized Clients</h1>
+
+{% include "message_box.html" %}
+
+{% if clients %}
+<table class="table table-bordered table-striped">
+	<thead>
+		<tr>
+			<th>Client</th>
+			<th>Access</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		{% for client, info in clients %}
+		<tr>
+
+			<td>
+				<p>Name: <a href="{% url remotestorage:account:client client.id %}">{{ client.name }}</a></p>
+				<p>Key: {{ client.key }}</p>
+				<p>Status: {{ info.status }}</p>
+				<p>Access tokens (active / expired): {{ info.tokens_active.count }} / {{ info.tokens_expired.count }}</p>
+				{% if client.description %}<p>Descripton: {{ client.description }}</p>{% endif %}
+
+				<form method="post" action="{% url remotestorage:account:client_action client_id=client.id action='post' %}">
+					{% csrf_token %}
+					<p>
+						<button type="submit" name="action" value="remove" class="btn btn-small btn-danger"
+							title="Revoke access for the client">Revoke access</button>
+					</p>
+				</form>
+			</td>
+
+			<td class="caps">
+				{% for cap in info.scope_active %}
+				<div class="well pull-left cap">
+					<form method="post"
+							action="{% url remotestorage:account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
+						{% csrf_token %}
+						<button class="btn btn-mini" title="Revoke capability from all tokens">
+							<i class="icon-remove"></i></button>
+						{{ cap }}
+					</form>
+				</div>
+				{% endfor %}
+				{% for cap in info.scope_expired %}{% if cap not in info.scope_active %}
+				<div class="well pull-left cap muted" title="On expired access tokens only">
+					<form method="post"
+							action="{% url remotestorage:account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
+						{% csrf_token %}
+						<button class="btn btn-mini" title="Revoke capability from all tokens">
+							<i class="icon-remove"></i></button>
+						{{ cap }}
+					</form>
+				</div>
+				{% endif %}{% endfor %}
+
+				<div class="well span8 cap_controls">
+					<form method="post" class="form-inline controls pull-left"
+							action="{% url remotestorage:account:client_action client_id=client.id action='cap_add' %}">
+						{% csrf_token %}
+						<div class="input-append">
+							<input
+								name="cap" type="text" placeholder="some_storage:rw"
+								><button type="submit" class="btn"
+									title="Add capability to all access tokens">Add</button>
+						</div>
+					</form>
+					<form method="post" class="form-inline controls pull-left"
+							action="{% url remotestorage:account:client_action client_id=client.id action='cap_cleanup' %}">
+						{% csrf_token %}
+						<button type="submit" class="btn"
+							title="Revoke all expired access tokens">Cleanup Expired</button>
+					</form>
+				</div>
+			</td>
+
+		</tr>
+		{% endfor %}
+	</tbody>
+
+</table>
+{% else %}
+<div class="well">No clients (apps) are authorized to access data
+	(except non-listing "public:r" access, which is always allowed).</div>
+{% endif %}
+
+{% endblock %}

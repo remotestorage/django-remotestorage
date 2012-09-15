@@ -1,5 +1,9 @@
-django-unhosted: [Unhosted](http://unhosted.org/) [remoteStorage](http://www.w3.org/community/unhosted/wiki/RemoteStorage) server implementation
+django-remotestorage
 --------------------
+
+[Unhosted](http://unhosted.org)
+[remoteStorage](http://remotestoragejs.com) server
+implementation
 
 This app is a server (storage) implementation for "stable" remoteStorage API
 version, specified here:
@@ -87,7 +91,7 @@ moment, but pip can install it from github directly.
 Various interfaces of the app use some external resources, like [Twitter
 Bootstrap](http://twitter.github.com/bootstrap/) CSS file (served from
 bootstrapcdn.com) and
-[remoteStorage.js](https://github.com/unhosted/remoteStorage.js), which can be
+[remoteStorage.js](https://github.com/remoteStorage/remoteStorage.js), which can be
 served - and **should be**, if you're using https for interfaces - from local
 URLs, if available in STATIC_ROOT.  See "Customization / Interfaces" for
 details.
@@ -106,16 +110,16 @@ Simple installation/setup from scratch may look like this.
 
 Install the app itself (or not, it can be just checked-out into a project dir):
 
-	pip install django-unhosted
+	pip install django-remotestorage
 
 ...or, to install directly from git master branch:
 
-	pip install 'git+https://github.com/mk-fg/django-unhosted.git#egg=django-unhosted'
+	pip install 'git+https://github.com/remoteStorage/django-remotestorage.git#egg=django-remotestorage'
 
 ...or you can do it manually:
 
-	git clone https://github.com/mk-fg/django-unhosted.git
-	cd django-unhosted
+	git clone https://github.com/remoteStorage/django-remotestorage.git
+	cd django-remotestorage
 	python setup.py install
 	pip install -r requirements.txt # or download/install each by hand as well
 
@@ -140,16 +144,16 @@ Then create and configure a django project:
 		-e 's/STATIC_ROOT *=/STATIC_ROOT="./static"/' \
 		myproject/settings.py
 	echo -e >>myproject/settings.py \
-		'from django_unhosted.settings_base import update_settings' \
+		'from django_remotestorage.settings_base import update_settings' \
 		'\nupdate_settings(__name__)'
 	sed -i \
-		-e '1afrom django_unhosted.urls import unhosted_patterns' \
-		-e 's/# Examples:.*/("", include(unhosted_patterns)),\n\n\0/' \
+		-e '1afrom django_remotestorage.urls import remotestorage_patterns' \
+		-e 's/# Examples:.*/("", include(remotestorage_patterns)),\n\n\0/' \
 		myproject/urls.py
 
 	# Create database schema and link app static files to STATIC_ROOT
 	./manage.py syncdb --noinput
-	./manage.py migrate django_unhosted
+	./manage.py migrate django_remotestorage
 	./manage.py collectstatic --noinput --link
 
 	# Run simple dev server
@@ -168,7 +172,8 @@ settings.py and urls.py.
 There are several ways to update django settings.py to use the app:
 
 * If it's the only app in a django project and there's no custom settings.py
-	already, options from [django_unhosted.settings_base](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/settings_base.py)
+	already, options from
+	[django_remotestorage.settings_base](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/settings_base.py)
 	module can be imported into it directly.
 
 	To do that, add the following lines to the *end* of
@@ -176,7 +181,7 @@ There are several ways to update django settings.py to use the app:
 	[DJANGO_SETTINGS_MODULE](https://docs.djangoproject.com/en/dev/topics/settings/#designating-the-settings)
 	is used) file:
 
-		from django_unhosted.settings_base import *
+		from django_remotestorage.settings_base import *
 
 	That will import all the options there (bare minimum that has to be changed)
 	over those defined above in the original file.
@@ -188,17 +193,17 @@ There are several ways to update django settings.py to use the app:
 	override the imported options.
 
 * If there's already some custom settings.py file available, there's
-	django_unhosted.settings_base.update_settings helper function available to
+	django_remotestorage.settings_base.update_settings helper function available to
 	update configuration without blindly overriding any options.
 
 	It can be used at the end of settings.py file like this:
 
-		from django_unhosted.settings_base import update_settings
+		from django_remotestorage.settings_base import update_settings
 		update_settings(__name__)
 
 	Full list of changes it'll make can be found in "updates" dict at the
 	beginning of
-	[django_unhosted.settings_base](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/settings_base.py)
+	[django_remotestorage.settings_base](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/settings_base.py)
 	module.
 
 	"update_settings" function also takes an optional "only" and "ignore" keywords
@@ -224,12 +229,12 @@ There are several ways to update django settings.py to use the app:
 			'django.core.context_processors.csrf',
 			'django.core.context_processors.request',
 			'django.contrib.messages.context_processors.messages',
-			'django_unhosted.utils.external_resources_context',
+			'django_remotestorage.utils.external_resources_context',
 		)
 
 		TEMPLATE_LOADERS = (
 			...whatever is already there...
-			'django_unhosted.apps.webfinger.xrd_gen.Loader',
+			'django_remotestorage.apps.webfinger.xrd_gen.Loader',
 		)
 
 		MIDDLEWARE_CLASSES = (
@@ -243,7 +248,7 @@ There are several ways to update django settings.py to use the app:
 		INSTALLED_APPS = (
 			...whatever is already there...
 			'django.contrib.messages',
-			'django_unhosted',
+			'django_remotestorage',
 			'oauth2app',
 			'south',
 		)
@@ -256,22 +261,22 @@ edit at least DATABASES, MEDIA\_\* and STATIC\_\* options.  You might also want
 to set other (optonal) settings there - TIME_ZONE, ADMINS, LOGGING, etc.
 
 As for urls.py, just add the following line to url patterns (importing
-unhosted_patterns from django_unhosted.urls module beforehand):
+remotestorage_patterns from django_remotestorage.urls module beforehand):
 
-	('', include(unhosted_patterns)),
+	('', include(remotestorage_patterns)),
 
 So it'd look like this:
 
 	...
-	from django_unhosted.urls import unhosted_patterns
+	from django_remotestorage.urls import remotestorage_patterns
 	...
 	urlpatterns = patterns('',
-		('', include(unhosted_patterns)),
+		('', include(remotestorage_patterns)),
 	...
 
 That will add all the app urls to the root-path (for the complete list of these
 paths, see [the module
-code](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/__init__.py)).
+code](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/__init__.py)).
 To selectively disable some of the components, see "Customization" section.
 
 ##### Database schema
@@ -286,9 +291,9 @@ If [South app](http://south.aeracode.org) is installed (and specified in the
 INSTALLED_APPS), you should also use it's migrations to create tables for which
 they are available:
 
-	django-admin.py migrate django_unhosted
+	django-admin.py migrate django_remotestorage
 
-That command can (and should) also be run after django-unhosted app updates to
+That command can (and should) also be run after django-remotestorage app updates to
 apply any possible changes to db schema.
 
 #### Running
@@ -312,11 +317,11 @@ Customization
 
 The app consists of several independent components (sub-apps, bound to url paths
 via
-[django_unhosted.urls](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/urls.py)):
+[django_remotestorage.urls](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/urls.py)):
 
 * Webfinger (name: webfinger, URL: {include_prefix}/.well-known/host-meta,
 	{include_prefix}/webfinger; see
-	[django_unhosted.apps.webfinger.urls](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/apps/webfinger/urls.py),
+	[django_remotestorage.apps.webfinger.urls](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/apps/webfinger/urls.py),
 	there are similar urlconf-files for other subapps).
 
 * OAuth2 (name: oauth2, URL: {include_prefix}/oauth2).
@@ -334,16 +339,16 @@ via
 
 Some components provide links to each other (for example, webfinger provides
 links to OAuth2 and API in served XRD/JSON data), resolved as
-"unhosted:{app}:{view_name}", so you can rebind these apps to any URLs, as long
+"remotestorage:{app}:{view_name}", so you can rebind these apps to any URLs, as long
 as you provide the same namespace/view_name for [django "reverse()"
 function](https://docs.djangoproject.com/en/dev/topics/http/urls/#reverse) and "url"
 template tags.
 
-When including "django_unhosted.urls.unhosted_patterns" directly (not the
-urlconfs from individual components), "UNHOSTED_COMPONENTS" settings.py option
+When including "django_remotestorage.urls.remotestorage_patterns" directly (not the
+urlconfs from individual components), "REMOTESTORAGE_COMPONENTS" settings.py option
 can be set to an iterable of components which should be enabled, for example:
 
-	UNHOSTED_COMPONENTS = 'webfinger', 'oauth2', 'api'
+	REMOTESTORAGE_COMPONENTS = 'webfinger', 'oauth2', 'api'
 
 ...will enable just Storage API, OAuth2 and Webfinger subapps - bare minimum for
 functional remoteStorage node.
@@ -392,11 +397,11 @@ for it.
 
 Webfinger app is using "webfinger/host_meta.{xml,json}" and
 "webfinger/webfinger.{xml,json}" templates, provided by
-django_unhosted.apps.webfinger.xrd_gen.Loader or generated dynamically (in case
+django_remotestorage.apps.webfinger.xrd_gen.Loader or generated dynamically (in case
 of json, if template provide can't be found).
 
 See example xml templates in
-[django_unhosted/templates/webfinger/{host_meta,webfinger}.xml.example](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/templates/webfinger/).
+[django_remotestorage/templates/webfinger/{host_meta,webfinger}.xml.example](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/templates/webfinger/).
 
 
 ### Storage / WebDAV
@@ -407,7 +412,7 @@ API](https://docs.djangoproject.com/en/dev/topics/files/).
 By default,
 [DEFAULT_FILE_STORAGE](https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-DEFAULT_FILE_STORAGE)
 storage class is used.
-Different storage class can be specified by "UNHOSTED_DAV_STORAGE" parameter
+Different storage class can be specified by "REMOTESTORAGE_DAV_STORAGE" parameter
 (passed to [get_storage_class](https://docs.djangoproject.com/en/dev/ref/files/storage/#django.core.files.storage.get_storage_class)).
 
 Examples of Storage API implementation might include:
@@ -421,7 +426,7 @@ Examples of Storage API implementation might include:
 	(Tahoe-LAFS)
 
 But basically there's a client for pretty much any data storage technology -
-just google it, install and set UNHOSTED_DAV_STORAGE (or DEFAULT_FILE_STORAGE)
+just google it, install and set REMOTESTORAGE_DAV_STORAGE (or DEFAULT_FILE_STORAGE)
 to it.
 
 Default Storage (FileStorage) parameters can be configured with MEDIA_URL and
@@ -431,20 +436,20 @@ docs section for details.
 
 There are also some optimization parameters:
 
-* UNHOSTED_DAV_SENDFILE (bool, default: False)
+* REMOTESTORAGE_DAV_SENDFILE (bool, default: False)
 
 	Pass Storage.path (if supported by backend) to httpd frontend via "X-Sendfile"
 	header instead of the actual contents upon request, so that response can be
 	served by frontend daemon directly without backend app involved.
 
-* UNHOSTED_DAV_ACCEL (string, default: None)
+* REMOTESTORAGE_DAV_ACCEL (string, default: None)
 
 	Return empty HttpResponse with "X-Accel-Redirect" header set to specified
 	prefix (can be an empty string) plus the requested path, so the actual
 	response can be served by [apache
 	mod_accel](http://sysoev.ru/en/apache_modules.html).
 
-* UNHOSTED_DAV_REDIRECT (bool, default: False)
+* REMOTESTORAGE_DAV_REDIRECT (bool, default: False)
 
 	Return redirect to MEDIA_URL (produced by Storage.url method).
 	Used only if MEDIA_URL is set to non-empty string.
@@ -465,7 +470,7 @@ Mostly usual drill - put your own templates to loaders, specified in settings.py
 
 External resources that are served on these pages can be put to STATIC_ROOT to
 be served by local httpd instead.
-See [django_unhosted.utils.external_resources_context](https://github.com/mk-fg/django-unhosted/blob/master/django_unhosted/utils.py)
+See [django_remotestorage.utils.external_resources_context](https://github.com/remoteStorage/django-remotestorage/blob/master/django_remotestorage/utils.py)
 context processor for details.
 
 Take special care to make resources local if you serve these interfaces over
@@ -473,26 +478,26 @@ https - there's just no security gain if MitM can place any javascript (loaded
 over plain http) to a page.
 
 Note that any/all of the UIs can be disabled, if they're not needed, just use
-UNHOSTED_COMPONENTS option (described in "Components" section) or don't include
+REMOTESTORAGE_COMPONENTS option (described in "Components" section) or don't include
 them in the urlconf, cherry-picking whichever ones are actually needed.
 
 One common case of customization is the need to put whole app into some subpath
-("/unhosted" in the example) can be addressed by putting this into the project's
+("/remotestorage" in the example) can be addressed by putting this into the project's
 root urls.py:
 
 	from django.conf.urls import patterns, include, url
 
-	from django_unhosted.apps.webfinger.urls import host_meta_patterns
-	from django_unhosted.urls import unhosted_patterns
+	from django_remotestorage.apps.webfinger.urls import host_meta_patterns
+	from django_remotestorage.urls import remotestorage_patterns
 
 	urlpatterns = patterns('',
 		url(r'', include(host_meta_patterns)),
-		url(r'^unhosted/', include(unhosted_patterns)),
+		url(r'^remotestorage/', include(remotestorage_patterns)),
 	)
 
-That way, demo client will be available at "/unhosted" url and all the links
+That way, demo client will be available at "/remotestorage" url and all the links
 will include that prefix (for example authorization link from webfinger will
-point to "/unhosted/oauth2/authorize").
+point to "/remotestorage/oauth2/authorize").
 
 Make sure, however, that host_meta view of webfinger app is [available at a
 well-known url](https://tools.ietf.org/html/draft-jones-appsawg-webfinger-04#section-3.1)
