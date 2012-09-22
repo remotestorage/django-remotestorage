@@ -7,7 +7,6 @@ from oauth2app.models import Client, AccessToken
 
 
 def storage_client(request):
-	print request.META
 	ctx = dict()
 	if request.user.is_authenticated():
 		clients = Client.objects.filter(user=request.user)
