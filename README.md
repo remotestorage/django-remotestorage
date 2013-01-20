@@ -1,24 +1,23 @@
 django-remotestorage
 --------------------
 
-[Unhosted](http://unhosted.org)
-[remoteStorage](http://remotestoragejs.com) server
+[Unhosted](https://unhosted.org)
+[remoteStorage](http://remotestorage.io) server
 implementation
 
-This app is a server (storage) implementation for "stable" remoteStorage API
+This app is a server (storage) implementation for an earlier remoteStorage API
 version, specified here:
 
 	http://www.w3.org/community/unhosted/wiki/RemoteStorage-2011.10
 
 Some parts of it (especially webfinger, oauth2, since I've used newer specs that
-were available at the time) *might* be compatible with newer ("experimental")
+were available at the time) *might* be compatible with the current
 API:
 
-	https://www.w3.org/community/rww/wiki/read-write-web-00#simple
-	http://www.w3.org/community/unhosted/wiki/Pds
+	https://tools.ietf.org/id/draft-dejong-remotestorage-00.txt
 
-But since remoteStorage.js 0.7.0 for experimental API is still under heavy
-development, I haven't tested whether it works with current implementation.
+But since remoteStorage.js 0.7.0 for experimental API was still under heavy
+development at the time, I haven't tested whether it works with current implementation.
 
 Package (and django app) was called django-unhosted in the past and was
 eventually renamed.  If you're using django-unhosted package, please read the
