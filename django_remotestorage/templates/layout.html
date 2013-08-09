@@ -1,3 +1,5 @@
+{% load url from future %}
+
 {% block license %}{% endblock %}
 <!DOCTYPE html>
 <html lang="en">
@@ -31,11 +33,11 @@
 
 <body>
 
-	{% url remotestorage:account:login as url_login %}
-	{% url remotestorage:account:logout as url_logout %}
-	{% url remotestorage:account:signup as url_signup %}
-	{% url remotestorage:account:clients as url_clients %}
-	{% url remotestorage:demo:storage_client as url_demo %}
+	{% url 'remotestorage:account:login' as url_login %}
+	{% url 'remotestorage:account:logout' as url_logout %}
+	{% url 'remotestorage:account:signup' as url_signup %}
+	{% url 'remotestorage:account:clients' as url_clients %}
+	{% url 'remotestorage:demo:storage_client' as url_demo %}
 
 	{% if url_login or url_logout or url_signup or url_clients or url_demo %}
 	<div class="navbar navbar-fixed-top"><div class="navbar-inner">

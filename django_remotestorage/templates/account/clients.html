@@ -1,5 +1,7 @@
 {% extends 'layout.html' %}
 
+{% load url from future %}
+
 {% block style_ext %}
 	.caps form { margin-bottom: 0; }
 	.caps .cap { margin: .1em .2em; padding: 5px; }
@@ -29,13 +31,13 @@
 		<tr>
 
 			<td>
-				<p>Name: <a href="{% url remotestorage:account:client client.id %}">{{ client.name }}</a></p>
+				<p>Name: <a href="{% url 'remotestorage:account:client' client.id %}">{{ client.name }}</a></p>
 				<p>Key: {{ client.key }}</p>
 				<p>Status: {{ info.status }}</p>
 				<p>Access tokens (active / expired): {{ info.tokens_active.count }} / {{ info.tokens_expired.count }}</p>
 				{% if client.description %}<p>Descripton: {{ client.description }}</p>{% endif %}
 
-				<form method="post" action="{% url remotestorage:account:client_action client_id=client.id action='post' %}">
+				<form method="post" action="{% url 'remotestorage:account:client_action' client_id=client.id action='post' %}">
 					{% csrf_token %}
 					<p>
 						<button type="submit" name="action" value="remove" class="btn btn-small btn-danger"
@@ -48,7 +50,7 @@
 				{% for cap in info.scope_active %}
 				<div class="well pull-left cap">
 					<form method="post"
-							action="{% url remotestorage:account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
+							action="{% url 'remotestorage:account:client_cap_action' client_id=client.id cap=cap|urlencode:"" action='remove' %}">
 						{% csrf_token %}
 						<button class="btn btn-mini" title="Revoke capability from all tokens">
 							<i class="icon-remove"></i></button>
@@ -59,7 +61,7 @@
 				{% for cap in info.scope_expired %}{% if cap not in info.scope_active %}
 				<div class="well pull-left cap muted" title="On expired access tokens only">
 					<form method="post"
-							action="{% url remotestorage:account:client_cap_action client_id=client.id cap=cap|urlencode:"" action='remove' %}">
+							action="{% url 'remotestorage:account:client_cap_action' client_id=client.id cap=cap|urlencode:"" action='remove' %}">
 						{% csrf_token %}
 						<button class="btn btn-mini" title="Revoke capability from all tokens">
 							<i class="icon-remove"></i></button>
@@ -70,7 +72,7 @@
 
 				<div class="well span8 cap_controls">
 					<form method="post" class="form-inline controls pull-left"
-							action="{% url remotestorage:account:client_action client_id=client.id action='cap_add' %}">
+							action="{% url 'remotestorage:account:client_action' client_id=client.id action='cap_add' %}">
 						{% csrf_token %}
 						<div class="input-append">
 							<input
@@ -80,7 +82,7 @@
 						</div>
 					</form>
 					<form method="post" class="form-inline controls pull-left"
-							action="{% url remotestorage:account:client_action client_id=client.id action='cap_cleanup' %}">
+							action="{% url 'remotestorage:account:client_action' client_id=client.id action='cap_cleanup' %}">
 						{% csrf_token %}
 						<button type="submit" class="btn"
 							title="Revoke all expired access tokens">Cleanup Expired</button>

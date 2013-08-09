@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 
+{% load url from future %}
+
 {% block license %}<!--
 {% include "demo/LICENSE.unhosted" %}-->
 {% endblock %}
@@ -22,7 +24,7 @@
 	<script type="text/javascript" src="{{ url_res_remotestorage }}"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}django_remotestorage_client/helper.js"></script>
 	<script type="text/javascript"
-		data-receive_token_url="{% url remotestorage:demo:storage_token %}"
+		data-receive_token_url="{% url 'remotestorage:demo:storage_token' %}"
 		src="{{ STATIC_URL }}django_remotestorage_client/tutorial.js"></script>
 	<script type="text/javascript" src="{{ STATIC_URL }}django_remotestorage_client/app.js"></script>
 {% endblock %}

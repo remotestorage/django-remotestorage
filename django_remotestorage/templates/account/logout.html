@@ -1,5 +1,7 @@
 {% extends 'layout.html' %}
 
+{% load url from future %}
+
 {% block title %}Logout{% endblock %}
 
 {% block content_generic %}
@@ -9,7 +11,7 @@
 <div>
 	<p>You are now logged out.</p>
 
-	{% url remotestorage:demo:storage_client as url_client %}
+	{% url 'remotestorage:demo:storage_client' as url_client %}
 	{% if url_client %}
 	<p>Return the to <a href="{{ url_client }}">demo client page</a>.</p>
 	{% endif %}
